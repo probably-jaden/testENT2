@@ -562,11 +562,12 @@ demandFunction <- function(price, data, type, population, sample = NA){
 fR <- function(data, type, pop, sample = NA) function(p) fQ(data, type, pop, sample)(p) * p
 
 fRm <- function(data, type, x1, x2, y, population, sample = NA){
-  fQ <- fQm(data, type, x1, x2, y, population, sample)
-  fR <- function(x1, x2) {
-    fQ(x1, x2) * x1
+  fQ_this <- fQm(data, type, x1, x2, y, population, sample)
+
+  fR_this <- function(x1, x2) {
+    fQ_this(x1, x2) * x1
   }
-  return(fR)
+  return(fR_this)
 }
 
 # if(testBool) fR(tb, "Linear", 1e6, 100)(10)
