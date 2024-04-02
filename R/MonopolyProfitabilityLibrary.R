@@ -1486,8 +1486,8 @@ profitCompare <- function(data, variable, fixed, population, sample = NA) nBestP
 # if(testBool) profitCompare(dp, v, f, Pop, 100)
 
 binary_Optim <- function(data, type, x1, x2, y1, y2, var1, fix1, var2, fix2, population, sample = NA){
-  fPi_1 <- fPi_m(data, type, x1, x2, y1, population, sample)
-  fPi_2 <- fPi_m(data, type, x2, x1, y2, population, sample)
+  fPi_1 <- fPi_m(data, type, x1, x2, y1, var1, fix1, population, sample)
+  fPi_2 <- fPi_m(data, type, x2, x1, y2, var2, fix2, population, sample)
 
   error <- 0.01
   diff <- 10
