@@ -1230,6 +1230,7 @@ fC <- function(variable, fixed, fQ) fC <- function(p) fixed + variable * fQ(p)
 
 fCm <- function(data, type, x1, x2, y, var, fix, population, sample = NA){
   fQ <- fQm(data, type, x1, x2, y, population, sample)
+
   fC <- function(x1, x2) {
     (fQ(x1, x2) * var) + fix
   }
@@ -1257,9 +1258,7 @@ costFunction <- function(price, data, type, variable, fixed, population, sample 
 # for internal code use
 fPi <- function(fR, fC) fPi <- function(p) fR(p) - fC(p)
 
-fPi_m <- function(data, type, x1, x2, y, var, fix, population, sample = NA) fR_m(data, type, x1, x2, y, population, sample) - fCm(data, type, x1, x2, y, var, fix, population, sample)
-
-fCm <- function(data, type, x1, x2, y, var, fix, population, sample = NA){
+fPi_m <- function(data, type, x1, x2, y, var, fix, population, sample = NA){
   fQ <- fQm(data, type, x1, x2, y, population, sample)
 
   fPi <- function(x1, x2) {
