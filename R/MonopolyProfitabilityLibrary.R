@@ -32,10 +32,10 @@ check_packages <- function() {
 #  }
 #}
 
-#library(gridExtra)
-#library(scales)
-#library(data.table)
-#library(tidyverse)
+library(gridExtra)
+library(scales)
+library(data.table)
+library(tidyverse)
 
 
 #testBool <- TRUE
@@ -392,6 +392,15 @@ powFun_multi <- function(data, x1, x2, y){
   fun <- function(param1, param2){
     exp(coef(model)[[1]] + coef(model)[[2]] * log(param1) + coef(model)[[3]] * log(param2))
   }
+  # powFun_multi <- function(data, args, y){
+  # model <- powModel_multi(data, args, y)
+  #
+  # for (i in 1:length(args)){
+  #
+  #
+  # }
+  # fun <- function(args2){
+
   return(fun)
 }
 
@@ -467,7 +476,6 @@ modelOptimize <- function(data, type, x, y){
   return(list(opt_output, opt_input))
 }
 
-
 scaleFunction <- function(data, type, x, y, pop, sample = NA, fun = NA){
   check_packages()
   if(class(fun) == class(NA)) fun <- modelFun(data, type, x, y)
@@ -490,6 +498,13 @@ scaleFunction_multi <- function(data, type, x1, x2, y, pop, sample = NA, fun = N
 fQ <- function(data, type, population, sample = NA){
   check_packages()
   fQ <- scaleFunction(data, type, "wtp", "quantity", population, sample)
+  if(class(fQ) == class(NA)) return(NA)
+  return(fQ)
+}
+
+fQm <- function(data, type, x1, x2, y, population, sample = NA){
+  check_packages()
+  fQ <- scaleFunction_multi(data, type, x1, x2, y, population, sample)
   if(class(fQ) == class(NA)) return(NA)
   return(fQ)
 }
@@ -545,6 +560,8 @@ demandFunction <- function(price, data, type, population, sample = NA){
 
 
 fR <- function(data, type, pop, sample = NA) function(p) fQ(data, type, pop, sample)(p) * p
+fRm <- function(data, type, x1, x2, y, population, sample = NA) fQm(data, type, x1, x2, y, population, sample)(x1, x2) * x1
+
 
 # if(testBool) fR(tb, "Linear", 1e6, 100)(10)
 
@@ -595,23 +612,28 @@ revenueFunction <- function(price, data, type, population, sample = NA){
   return(fR(price))
 }
 
-
-
 # if(testBool) revenueFunction(20, dp, "Exponential", 1e6)
 
-
-
+test <- c("Linear", "Exponential", "Sigmoid", "Power")
 
 #Don't use, definitely DONT LET STUDENTS USE
 superSwitch <- function(data, type, stage, x = "wtp", y = "quantity"){
   check_packages()
-  switch(stage,
-         Model   = do.call("anyModel", list(data, type, x, y)),
-         Summary = do.call("modelSummary", list(data, type, x, y)),
-         Function = do.call("modelFun", list(data, type, x, y)),
-         stop("Invalid type"))
-}
 
+  if (length(x) > 1){
+    switch(stage,
+           Model = do.call("anyModel", list(data, type, x, y)),
+           Summary = do.call("modelSummary", list(data, type, x, y)),
+           Function = do.call("modelFun", list(data, type, x, y)),
+           stop("Invalid type"))
+  } else{
+    switch(stage,
+           Model = do.call("anyModel", list(data, type, x, y)),
+           Summary = do.call("modelSummary", list(data, type, x, y)),
+           Function = do.call("modelFun", list(data, type, x, y)),
+           stop("Invalid type"))
+  }
+}
 
 
 rSquared <- function(data, type, x, y){
@@ -666,6 +688,12 @@ modelPlot <- function(data, type, x, y){
 }
 # if(testBool) modelPlot(tb, "Sigmoid", "wtp", "quantity")
 
+#dp <- dplyr::tibble(wtp = c(64, 18, 46, 92, 110, 138, 113, 89, 0, 258, 205, 0, 18, 202, 46, 258, 0, 141, 0, 46, 61, 101, 64, 215, 95, 43, 46, 46, 132, 21, 18, 113, 9, 18, 21, 18, 104, 6, 0, 101, 6, 224, 322, 18, 316, 156, 104, 322, 285, 208, 316, 0, 288, 95, 6, 52, 46, 0, 18, 64, 98, 248, 18, 110, 0, 67, 0, 18, 0, 89, 132, 101, 18, 215, 18, 0, 0, 104, 285, 3, 46, 141, 322, 291, 89, 0, 101, 113, 67, 3, 132, 215, 224, 291, 9, 291, 267, 6, 6, 61, 178, 285, 64, 126, 0, 101, 15))
+
+#dp <- demandDurable(dp)
+
+#demandPlot(dp, "Exponential", 1e6, 1000)
+
 
 demandPlot <- function(data, type, population, sample = NA){
   check_packages()
@@ -701,6 +729,40 @@ demandPlot <- function(data, type, population, sample = NA){
     theme(plot.title = element_text(face = "bold"))
   return(newPlot)
 }
+
+demandPlotMulti <- function(competitor_price, data, type, x1, x2, y, population, sample = NA){
+  title <- paste("Demand:", type)
+  fQm <- fQm(data, type, x1, x2, y, population, sample = NA)
+  if(class(fQ) == class(NA))return()
+
+  if(class(sample) == class(NA)) sample <- nrow(data)
+  scalar <- population/sample
+
+  newTibble <- data %>%
+    mutate(scaled_y = y * scalar)
+
+  newPlot <- ggplot(data = newTibble)+
+    geom_function(fun = fQm,
+                  color = "orange", lwd = 1.5, alpha = .8) +
+    geom_point(mapping = aes(x = wtp, y = scaled_quantity), color = "darkorange", size = 2)+
+    labs(title = title, x = "Price ($'s)", y = "Quantity Sold ") +
+    annotate("label", x = Inf, y = Inf,
+             label = paste("R squared:", rSq),
+             vjust = 1, hjust = 1,
+             color = "darkorange", alpha = .8,
+             fontface = "bold")+
+    scale_y_continuous(labels = label_number(scale_cut = cut_short_scale()),
+                       breaks = scales::extended_breaks(),
+                       limits = c(0, NA))+
+    theme(plot.title = element_text(face = "bold"))+
+    theme_minimal()+
+    theme(axis.text = element_text(size = 6),
+          axis.title.x =element_text(size = 8),
+          axis.title.y =element_text(size = 8))+
+    theme(plot.title = element_text(face = "bold"))
+
+}
+
 #if(testBool) demandPlot(dp, "Exponential", 1e6, 100)
 
 linFormulaFancy <- function(data, population, sample = NA){
@@ -1157,10 +1219,10 @@ f <- 10000
 Pop <- 1e7
 
 # for internal code use
-fC <- function(variable, fixed, fQ) {
-  fC <- function(p) fixed + variable * fQ(p)
-  return(fC)
-}
+fC <- function(variable, fixed, fQ) fC <- function(p) fixed + variable * fQ(p)
+
+fCm <- function(data, type, x1, x2, y, var, fix, population, sample = NA) function(p) fix + var * fQm(data, type, x1, x2, y, population, sample)
+
 
 # for student use
 costFunction <- function(price, data, type, variable, fixed, population, sample = NA){
@@ -1179,10 +1241,9 @@ costFunction <- function(price, data, type, variable, fixed, population, sample 
 # if(testBool) costFunction(100, tb, "Sigmoid", 5, 2e5, 1e6, 100)
 
 # for internal code use
-fPi <- function(fR, fC){
-  fPi <- function(p) fR(p) - fC(p)
-  return(fPi)
-}
+fPi <- function(fR, fC) fPi <- function(p) fR(p) - fC(p)
+
+fPi_m <- function(data, type, x1, x2, y, var, fix, population, sample = NA) fR_m(data, type, x1, x2, y, population, sample) - fCm(data, type, x1, x2, y, var, fix, population, sample)
 
 profitFunction <- function(price, data, type, variable, fixed, population, sample = NA){
   check_packages()
@@ -1402,7 +1463,7 @@ profitCompare <- function(data, variable, fixed, population, sample = NA) nBestP
 #Test
 # if(testBool) profitCompare(dp, v, f, Pop, 100)
 
-
+#compOptim <- function()
 
 
 
