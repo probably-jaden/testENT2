@@ -560,8 +560,14 @@ demandFunction <- function(price, data, type, population, sample = NA){
 
 
 fR <- function(data, type, pop, sample = NA) function(p) fQ(data, type, pop, sample)(p) * p
-fRm <- function(data, type, x1, x2, y, population, sample = NA) fQm(data, type, x1, x2, y, population, sample)(x1, x2) * x1
 
+fRm <- function(data, type, x1, x2, y, population, sample = NA){
+  fQ <- fQm(data, type, x1, x2, y, population, sample)
+  fR <- function(x1, x2) {
+    fQ(x1, x2) * x1
+  }
+  return(fR)
+}
 
 # if(testBool) fR(tb, "Linear", 1e6, 100)(10)
 
@@ -1221,7 +1227,14 @@ Pop <- 1e7
 # for internal code use
 fC <- function(variable, fixed, fQ) fC <- function(p) fixed + variable * fQ(p)
 
-fCm <- function(data, type, x1, x2, y, var, fix, population, sample = NA) function(p) fix + var * fQm(data, type, x1, x2, y, population, sample)
+fCm <- function(data, type, x1, x2, y, var, fix, population, sample = NA){
+  fQ <- fQm(data, type, x1, x2, y, population, sample)
+  fC <- function(x1, x2) {
+    (fQ(x1, x2) * var) + fix
+  }
+  return(fC)
+}
+
 
 
 # for student use
@@ -1244,6 +1257,15 @@ costFunction <- function(price, data, type, variable, fixed, population, sample 
 fPi <- function(fR, fC) fPi <- function(p) fR(p) - fC(p)
 
 fPi_m <- function(data, type, x1, x2, y, var, fix, population, sample = NA) fR_m(data, type, x1, x2, y, population, sample) - fCm(data, type, x1, x2, y, var, fix, population, sample)
+
+fCm <- function(data, type, x1, x2, y, var, fix, population, sample = NA){
+  fQ <- fQm(data, type, x1, x2, y, population, sample)
+
+  fPi <- function(x1, x2) {
+    (fQ(x1, x2) * x1) - ((fQ(x1, x2) * var) + fix)
+  }
+  return(fPi)
+}
 
 profitFunction <- function(price, data, type, variable, fixed, population, sample = NA){
   check_packages()
