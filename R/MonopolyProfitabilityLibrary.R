@@ -1495,8 +1495,8 @@ binary_Optim <- function(data, type, x1, x2, y1, y2, var1, fix1, var2, fix2, pop
   maxiter <- 100
   i = 0
 
-  p1_old <- mean(data[x1])
-  p2_old <- mean(data[x2])
+  p1_old <- sum(data[x1])/nrow(data)
+  p2_old <- sum(data[x2])/nrow(data)
 
   x1_max <- max(data[x1])
   x1_min <- min(data[x1])
