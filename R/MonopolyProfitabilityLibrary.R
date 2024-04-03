@@ -1253,8 +1253,8 @@ fCm <- function(data, type, x1, x2, y, var, fix, population, sample = NA){
   return(fC)
 }
 
-competitionCost <- function(price.1, price.2, data, type, wtp.1, wtp.2, quantity.1, variable.1, fixed.1, population, sample = NA){
-  cost <- fCm(data, type, wtp.1, wtp.2, quantity.1, variable.1, fixed.1, population, sample)(price.1, price.2)
+competitionCost <- function(price.1, price.2, data, type, wtp.1, wtp.2, quantity.1, variable, fixed, population, sample = NA){
+  cost <- fCm(data, type, wtp.1, wtp.2, quantity.1, variable, fixed, population, sample)(price.1, price.2)
   print(paste0("Cost is $", format(round(cost, 2), big.mark = ",")))
 }
 
@@ -1289,8 +1289,8 @@ fPi_m <- function(data, type, x1, x2, y, var, fix, population, sample = NA){
   return(fPi)
 }
 
-competitionProfit <- function(price.1, price.2, data, type, wtp.1, wtp.2, quantity.1, variable.1, fixed.1, population, sample = NA){
-  profit <- fPi_m(data, type, wtp.1, wtp.2, quantity.1, variable.1, fixed.1, sample)(price.1, price.2)
+competitionProfit <- function(price.1, price.2, data, type, wtp.1, wtp.2, quantity.1, variable, fixed, population, sample = NA){
+  profit <- fPi_m(data, type, wtp.1, wtp.2, quantity.1, variable, fixed, sample)(price.1, price.2)
   print(paste0("Profit is $", format(round(profit, 2), big.mark = ",")))
 }
 
@@ -1548,12 +1548,12 @@ binary_Optim <- function(data, type, x1, x2, y1, y2, var1, fix1, var2, fix2, pop
 
 competitionSolve <- function(data, type, wtp.1, wtp.2,
                              quantity.1, quantity.2,
-                             variable.1, fixed.2, variable.1, variable.2,
+                             variable.1, fixed.1, variable.2, fixed.2,
                              population, sample = NA){
 
   opt_prices <- binary_Optim(data, type, tp.1, wtp.2,
                              quantity.1, quantity.2,
-                             variable.1, fixed.2, variable.1, variable.2,
+                             variable.1, fixed.1, variable.2, fixed.2,
                              population, sample = NA)
 
   opt_price.1 <- opt_prices[[1]]
@@ -1571,8 +1571,8 @@ competitionSolve <- function(data, type, wtp.1, wtp.2,
   print("Product 2")
   competitionQuantity(data, type, opt_price.2, opt_price.1, quantity.2, population, sample = NA)
   competitionRevenue(data, type, opt_price.2, opt_price.1, quantity.2, population, sample = NA)
-  competitionCost(data, type, opt_price.2, opt_price.1, quantity.2, variable.1, fixed.1, population, sample = NA)
-  competitionProfit(data, type, opt_price.2, opt_price.1, quantity.2, variable.1, fixed.1, population, sample = NA)
+  competitionCost(data, type, opt_price.2, opt_price.1, quantity.2, variable.2, fixed.2, population, sample = NA)
+  competitionProfit(data, type, opt_price.2, opt_price.1, quantity.2, variable.2, fixed.2, population, sample = NA)
 
 }
 
