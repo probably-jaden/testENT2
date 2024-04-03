@@ -146,10 +146,6 @@ quantityCreation_multi <- function(data, col1 = NULL, col2 = NULL){
     arrange(desc(data[col2]), data[col1])
   data[Q2] <- cumsum(data["count"])
 
-  data <- data %>%
-    rename(P1 = data[col1],
-           P2 = data[col2])
-
   return(data)
 }
 
