@@ -509,6 +509,11 @@ fQm <- function(data, type, x1, x2, y, population, sample = NA){
   return(fQ)
 }
 
+competitionQuantity <- function(price.1, price.2, data, type, wtp.1, wtp.2, quantity.1, population, sample = NA){
+  quantity <- fQm(data, type, wtp.1, wtp.2, quantity.1, population, sample)(price.1, price.2)
+  print(paste0("Quantity Sold:", format(round(quantity, 2), big.mark = ",")))
+}
+
 
 demandFunction <- function(price, data, type, population, sample = NA){
   check_packages()
@@ -571,12 +576,8 @@ fRm <- function(data, type, x1, x2, y, population, sample = NA){
 }
 
 competitionRevenue <- function(price.1, price.2, data, type, wtp.1, wtp.2, quantity.1, population, sample = NA){
-  fR <- fRm(data, type, wtp.1, wtp.2, quantity.1, population, sample)
-  rev.1 <- fR(price.1, price.2)[[1]]
-  rev.2 <- fR(price.1, price.2)[[2]]
-
-  print(paste0("Revenue for Product 1: $", rev.1))
-  print(paste0("Revenue for Product 2: $", rev.2))
+  rev <- fRm(data, type, wtp.1, wtp.2, quantity.1, population, sample)(price.1, price.2)
+  print(paste0("Revenue is $", format(round(rev, 2), big.mark = ",")))
 }
 
 # if(testBool) fR(tb, "Linear", 1e6, 100)(10)
@@ -1247,22 +1248,10 @@ fCm <- function(data, type, x1, x2, y, var, fix, population, sample = NA){
 }
 
 competitionCost <- function(price.1, price.2, data, type, wtp.1, wtp.2, quantity.1, variable.1, fixed.1, population, sample = NA){
-  fC <- fCm(data, type, wtp.1, wtp.2, quantity.1, variable.1, fixed.1, population, sample)
-  cost.1 <- fC(price.1, price.2)[[1]]
-  cost.2 <- fC(price.1, price.2)[[2]]
-
-  print(paste0("Cost for Product 1: $", cost.1))
-  print(paste0("Cost for Product 2: $", cost.2))
+  cost <- fCm(data, type, wtp.1, wtp.2, quantity.1, variable.1, fixed.1, population, sample)(price.1, price.2)
+  print(paste0("Cost is $", format(round(cost, 2), big.mark = ",")))
 }
 
-competitionCost <- function(price.1, price.2, data, type, wtp.1, wtp.2, quantity.1, population, sample = NA){
-  fR <- fRm(data, type, wtp.1, wtp.2, quantity.1, population, sample)
-  rev.1 <- fR(price.1, price.2)[[1]]
-  rev.2 <- fR(price.1, price.2)[[2]]
-
-  print(paste0("Revenue for Product 1: $", rev.1))
-  print(paste0("Revenue for Product 2: $", rev.1))
-}
 
 
 
@@ -1295,16 +1284,9 @@ fPi_m <- function(data, type, x1, x2, y, var, fix, population, sample = NA){
 }
 
 competitionProfit <- function(price.1, price.2, data, type, wtp.1, wtp.2, quantity.1, variable.1, fixed.1, population, sample = NA){
-
-  fPi <- fPi_m(data, type, wtp.1, wtp.2, quantity.1, variable.1, fixed.1, sample)
-  prof.1 <- fPi(price.1, price.2)[[1]]
-  prof.2 <- fPi(price.1, price.2)[[2]]
-
-  print(paste0("Profit for Product 1: $", prof.1))
-  print(paste0("Profit for Product 2: $", prof.2))
+  profit <- fPi_m(data, type, wtp.1, wtp.2, quantity.1, variable.1, fixed.1, sample)(price.1, price.2)
+  print(paste0("Profit is $", format(round(profit, 2), big.mark = ",")))
 }
-
-
 
 profitFunction <- function(price, data, type, variable, fixed, population, sample = NA){
   check_packages()
@@ -1556,6 +1538,36 @@ binary_Optim <- function(data, type, x1, x2, y1, y2, var1, fix1, var2, fix2, pop
     i = i + 1
   }
   return(list(p1, p2))
+}
+
+competitionSolve <- function(data, type, wtp.1, wtp.2,
+                             quantity.1, quantity.2,
+                             variable.1, fixed.2, variable.1, variable.2,
+                             population, sample = NA){
+
+  opt_prices <- binary_Optim(data, type, tp.1, wtp.2,
+                             quantity.1, quantity.2,
+                             variable.1, fixed.2, variable.1, variable.2,
+                             population, sample = NA)
+
+  opt_price.1 <- opt_prices[[1]]
+  opt_price.2 <- opt_prices[[2]]
+
+  print(paste("Optimal Price for Product 1: ", format(round(opt_price.1, 2), big.mark = ",")))
+  print(paste("Optimal Price for Product 2: ", format(round(opt_price.2, 2), big.mark = ",")))
+
+  print("Product 1")
+  competitionQuantity(data, type, opt_price.1, opt_price.2, quantity.1, population, sample = NA)
+  competitionRevenue(data, type, opt_price.1, opt_price.2, quantity.1, population, sample = NA)
+  competitionCost(data, type, opt_price.1, opt_price.2, quantity.1, variable.1, fixed.1, population, sample = NA)
+  competitionProfit(data, type, opt_price.1, opt_price.2, quantity.1, variable.1, fixed.1, population, sample = NA)
+
+  print("Product 2")
+  competitionQuantity(data, type, opt_price.2, opt_price.1, quantity.2, population, sample = NA)
+  competitionRevenue(data, type, opt_price.2, opt_price.1, quantity.2, population, sample = NA)
+  competitionCost(data, type, opt_price.2, opt_price.1, quantity.2, variable.1, fixed.1, population, sample = NA)
+  competitionProfit(data, type, opt_price.2, opt_price.1, quantity.2, variable.1, fixed.1, population, sample = NA)
+
 }
 
 
