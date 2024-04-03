@@ -511,8 +511,8 @@ fQm <- function(data, type, x1, x2, y, population, sample = NA){
   return(fQ)
 }
 
-competitionQuantity <- function(price.1, price.2, data, type, wtp.1, wtp.2, quantity.1, population, sample = NA){
-  quantity <- fQm(data, type, wtp.1, wtp.2, quantity.1, population, sample)(price.1, price.2)
+competitionQuantity <- function(price.1, price.2, data, type, wtp.1, wtp.2, quantity_1, population, sample = NA){
+  quantity <- fQm(data, type, wtp.1, wtp.2, quantity_1, population, sample)(price.1, price.2)
   print(paste0("Quantity Sold: ", format(round(quantity, 2), big.mark = ",")))
 }
 
@@ -1555,8 +1555,8 @@ competitionSolve <- function(data, type, wtp.1, wtp.2,
   opt_price.1 <- opt_prices[[1]]
   opt_price.2 <- opt_prices[[2]]
 
-  print(paste("Optimal Price for Product 1: ", format(round(opt_price.1, 2), big.mark = ",")))
-  print(paste("Optimal Price for Product 2: ", format(round(opt_price.2, 2), big.mark = ",")))
+  print(paste("Optimal Price for Product 1: $", format(round(opt_price.1, 2), big.mark = ",")))
+  print(paste("Optimal Price for Product 2: $", format(round(opt_price.2, 2), big.mark = ",")))
 
   print("Product 1")
   competitionQuantity(data, type, opt_price.1, opt_price.2, quantity.1, population, sample = NA)
