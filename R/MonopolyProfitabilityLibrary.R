@@ -1564,13 +1564,13 @@ competitionSolve <- function(data, type, wtp1, wtp2,
   print(paste("Optimal Price for Product 1: $", format(round(opt_price1, 2), big.mark = ",")))
   print(paste("Optimal Price for Product 2: $", format(round(opt_price2, 2), big.mark = ",")))
 
-  print("Product 1")
+  print("\n\nProduct 1")
   competitionQuantity(opt_price1, opt_price2, data, type, wtp1, wtp2, quantity1, population, sample = NA)
   competitionRevenue(opt_price1, opt_price2, data, type, wtp1, wtp2, quantity1, population, sample = NA)
   competitionCost(opt_price1, opt_price2, data, type, wtp1, wtp2, quantity1, variable1, fixed1, population, sample = NA)
   competitionProfit(opt_price1, opt_price2, data, type, wtp1, wtp2, quantity1, variable1, fixed1, population, sample = NA)
 
-  print("Product 2")
+  print("\n\nProduct 2")
   competitionQuantity(opt_price2, opt_price1, data, type, wtp2, wtp1, quantity2, population, sample = NA)
   competitionRevenue(opt_price2, opt_price1, data, type, wtp2, wtp1, quantity2, population, sample = NA)
   competitionCost(opt_price2, opt_price1, data, type, wtp2, wtp1, quantity2, variable2, fixed2, population, sample = NA)
