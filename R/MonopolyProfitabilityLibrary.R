@@ -1287,8 +1287,12 @@ fPi_m <- function(data, type, x1, x2, y, var, fix, population, sample = NA){
   return(fPi)
 }
 
-competitionProfit <- function(price1, price2, data, type, wtp1, wtp2, quantity1, variable, fixed, population, sample = NA){
-  profit <- fPi_m(data, type, wtp1, wtp2, quantity1, variable, fixed, sample)(price1, price2)
+competitionProfit <- function(price1, price2, data, type,
+                              wtp1, wtp2, quantity1,
+                              variable, fixed,
+                              population, sample = NA){
+
+  profit <- fPi_m(data, type, wtp1, wtp2, quantity1, variable, fixed, population, sample)(price1, price2)
   print(paste0("Profit is $", format(round(profit, 2), big.mark = ",")))
 }
 
