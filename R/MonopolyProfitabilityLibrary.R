@@ -570,13 +570,13 @@ fRm <- function(data, type, x1, x2, y, population, sample = NA){
   return(fR_this)
 }
 
-competitonRevenue <- function(price.1, price.2, data, type, wtp.1, wtp.2, quantity.1, population, sample = NA){
+competitionRevenue <- function(price.1, price.2, data, type, wtp.1, wtp.2, quantity.1, population, sample = NA){
   fR <- fRm(data, type, wtp.1, wtp.2, quantity.1, population, sample)
   rev.1 <- fR(price.1, price.2)[[1]]
   rev.2 <- fR(price.1, price.2)[[2]]
 
   print(paste0("Revenue for Product 1: $", rev.1))
-  print(paste0("Revenue for Product 2: $", rev.1))
+  print(paste0("Revenue for Product 2: $", rev.2))
 }
 
 # if(testBool) fR(tb, "Linear", 1e6, 100)(10)
@@ -1246,6 +1246,24 @@ fCm <- function(data, type, x1, x2, y, var, fix, population, sample = NA){
   return(fC)
 }
 
+competitionCost <- function(price.1, price.2, data, type, wtp.1, wtp.2, quantity.1, variable.1, fixed.1, population, sample = NA){
+  fC <- fCm(data, type, wtp.1, wtp.2, quantity.1, variable.1, fixed.1, population, sample)
+  cost.1 <- fC(price.1, price.2)[[1]]
+  cost.2 <- fC(price.1, price.2)[[2]]
+
+  print(paste0("Cost for Product 1: $", cost.1))
+  print(paste0("Cost for Product 2: $", cost.2))
+}
+
+competitionCost <- function(price.1, price.2, data, type, wtp.1, wtp.2, quantity.1, population, sample = NA){
+  fR <- fRm(data, type, wtp.1, wtp.2, quantity.1, population, sample)
+  rev.1 <- fR(price.1, price.2)[[1]]
+  rev.2 <- fR(price.1, price.2)[[2]]
+
+  print(paste0("Revenue for Product 1: $", rev.1))
+  print(paste0("Revenue for Product 2: $", rev.1))
+}
+
 
 
 # for student use
@@ -1275,6 +1293,18 @@ fPi_m <- function(data, type, x1, x2, y, var, fix, population, sample = NA){
   }
   return(fPi)
 }
+
+competitionProfit <- function(price.1, price.2, data, type, wtp.1, wtp.2, quantity.1, variable.1, fixed.1, population, sample = NA){
+
+  fPi <- fPi_m(data, type, wtp.1, wtp.2, quantity.1, variable.1, fixed.1, sample)
+  prof.1 <- fPi(price.1, price.2)[[1]]
+  prof.2 <- fPi(price.1, price.2)[[2]]
+
+  print(paste0("Profit for Product 1: $", prof.1))
+  print(paste0("Profit for Product 2: $", prof.2))
+}
+
+
 
 profitFunction <- function(price, data, type, variable, fixed, population, sample = NA){
   check_packages()
