@@ -1509,7 +1509,7 @@ binary_Optim <- function(data, type, x1, x2, y1, y2, var1, fix1, var2, fix2, pop
     p2 <- optimize(fPi_2, interval = c(x2_min, x2_max), maximum = T, x2 = p1)[[1]]
 
     diff_p1 <- abs(p1_old - p1)
-    diff_p2 <- abs(p2_init - p2)
+    diff_p2 <- abs(p2_old - p2)
 
     p1_old <- p1
     p2_old <- p2
