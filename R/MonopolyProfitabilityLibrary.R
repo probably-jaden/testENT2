@@ -570,6 +570,15 @@ fRm <- function(data, type, x1, x2, y, population, sample = NA){
   return(fR_this)
 }
 
+competitonRevenue <- function(price.1, price.2, data, type, wtp.1, wtp.2, quantity.1, population, sample = NA){
+  fR <- fRm(data, type, wtp.1, wtp.2, quantity.1, population, sample)
+  rev.1 <- fR(price.1, price.2)[[1]]
+  rev.2 <- fR(price.1, price.2)[[2]]
+
+  print(paste0("Revenue for Product 1: $", rev.1))
+  print(paste0("Revenue for Product 2: $", rev.1))
+}
+
 # if(testBool) fR(tb, "Linear", 1e6, 100)(10)
 
 revenueFunction <- function(price, data, type, population, sample = NA){
