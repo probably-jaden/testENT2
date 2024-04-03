@@ -1489,10 +1489,14 @@ binary_Optim <- function(data, type, x1, x2, y1, y2, var1, fix1, var2, fix2, pop
   fPi_1 <- fPi_m(data, type, x1, x2, y1, var1, fix1, population, sample)
   fPi_2 <- fPi_m(data, type, x2, x1, y2, var2, fix2, population, sample)
 
-  error <- 0.01
-  diff <- 10
+  tolerance <- 0.01
+  diff_p1 <- 10
+  diff_p2 <- 10
+  maxiter <- 100
+  i = 0
 
-  p2_init <- mean(data[x2])
+  p1_old <- mean(data[x1])
+  p2_old <- mean(data[x2])
 
   x1_max <- max(data[x1])
   x1_min <- min(data[x1])
@@ -1500,12 +1504,17 @@ binary_Optim <- function(data, type, x1, x2, y1, y2, var1, fix1, var2, fix2, pop
   x2_min <- max(data[x2])
   x2_max <- min(data[x2])
 
-  while(diff > error){
-    p1 <- optimize(fPi_1, interval = c(x1_min, x1_max), maximum = T, x2 = p2_init)[[1]]
+  while((diff_p1 > tolerance || diff_p2 > tolerance) && i <= maxiter){
+    p1 <- optimize(fPi_1, interval = c(x1_min, x1_max), maximum = T, x2 = p2_old)[[1]]
     p2 <- optimize(fPi_2, interval = c(x2_min, x2_max), maximum = T, x2 = p1)[[1]]
 
-    diff <- abs(p2_init - p2)
-    p2_init <- p2
+    diff_p1 <- abs(p1_old - p1)
+    diff_p2 <- abs(p2_init - p2)
+
+    p1_old <- p1
+    p2_old <- p2
+
+    i = i + 1
   }
   return(list(p1, p2))
 }
