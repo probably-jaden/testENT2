@@ -513,7 +513,7 @@ fQm <- function(data, type, x1, x2, y, population, sample = NA){
 
 competitionQuantity <- function(price.1, price.2, data, type, wtp.1, wtp.2, quantity.1, population, sample = NA){
   quantity <- fQm(data, type, wtp.1, wtp.2, quantity.1, population, sample)(price.1, price.2)
-  print(paste0("Quantity Sold:", format(round(quantity, 2), big.mark = ",")))
+  print(paste0("Quantity Sold: ", format(round(quantity, 2), big.mark = ",")))
 }
 
 
@@ -1547,7 +1547,7 @@ competitionSolve <- function(data, type, wtp.1, wtp.2,
                              variable.1, fixed.1, variable.2, fixed.2,
                              population, sample = NA){
 
-  opt_prices <- binary_Optim(data, type, tp.1, wtp.2,
+  opt_prices <- binary_Optim(data, type, wtp.1, wtp.2,
                              quantity.1, quantity.2,
                              variable.1, fixed.1, variable.2, fixed.2,
                              population, sample = NA)
