@@ -130,6 +130,8 @@ quantityCreation_multi <- function(data, col1 = NULL, col2 = NULL){
 
   Q1 <- paste0("Q_", col1)
   Q2 <- paste0("Q_", col2)
+  P1 <- paste0("wtp_", col1)
+  P2 <- paste0("wtp_", col2)
 
   data <- data %>%
     group_by(data[col1], data[col2]) %>%
@@ -143,6 +145,10 @@ quantityCreation_multi <- function(data, col1 = NULL, col2 = NULL){
   data <- data %>%
     arrange(desc(data[col2]), data[col1])
   data[Q2] <- cumsum(data["count"])
+
+  data <- data %>%
+    rename(P1 = data[col1],
+           P2 = data[col2])
 
   return(data)
 }
