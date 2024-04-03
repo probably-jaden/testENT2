@@ -513,7 +513,7 @@ fQm <- function(data, type, x1, x2, y, population, sample = NA){
 
 competitionQuantity <- function(price1, price2, data, type, wtp1, wtp2, quantity1, population, sample = NA){
   quantity <- fQm(data, type, wtp1, wtp2, quantity1, population, sample)(price1, price2)
-  print(paste0("Quantity Sold: ", format(round(quantity, 2), big.mark = ",")))
+  cat(paste0("Quantity Sold: ", format(round(quantity, 2), big.mark = ",")))
 }
 
 
@@ -581,7 +581,7 @@ fRm <- function(data, type, x1, x2, y, population, sample = NA){
 
 competitionRevenue <- function(price1, price2, data, type, wtp1, wtp2, quantity1, population, sample = NA){
   rev <- fRm(data, type, wtp1, wtp2, quantity1, population, sample)(price1, price2)
-  print(paste0("Revenue is $", format(round(rev, 2), big.mark = ",")))
+  cat(paste0("Revenue is $", format(round(rev, 2), big.mark = ",")))
 }
 
 # if(testBool) fR(tb, "Linear", 1e6, 100)(10)
@@ -1253,7 +1253,7 @@ fCm <- function(data, type, x1, x2, y, var, fix, population, sample = NA){
 
 competitionCost <- function(price1, price2, data, type, wtp1, wtp2, quantity1, variable, fixed, population, sample = NA){
   cost <- fCm(data, type, wtp1, wtp2, quantity1, variable, fixed, population, sample)(price1, price2)
-  print(paste0("Cost is $", format(round(cost, 2), big.mark = ",")))
+  cat(paste0("Cost is $", format(round(cost, 2), big.mark = ",")))
 }
 
 
@@ -1293,7 +1293,7 @@ competitionProfit <- function(price1, price2, data, type,
                               population, sample = NA){
 
   profit <- fPi_m(data, type, wtp1, wtp2, quantity1, variable, fixed, population, sample)(price1, price2)
-  print(paste0("Profit is $", format(round(profit, 2), big.mark = ",")))
+  cat(paste0("Profit is $", format(round(profit, 2), big.mark = ",")))
 }
 
 profitFunction <- function(price, data, type, variable, fixed, population, sample = NA){
@@ -1561,16 +1561,16 @@ competitionSolve <- function(data, type, wtp1, wtp2,
   opt_price1 <- opt_prices[[1]]
   opt_price2 <- opt_prices[[2]]
 
-  print(paste("Optimal Price for Product 1: $", format(round(opt_price1, 2), big.mark = ",")))
-  print(paste("Optimal Price for Product 2: $", format(round(opt_price2, 2), big.mark = ",")))
+  cat(paste("Optimal Price for Product 1: $", format(round(opt_price1, 2), big.mark = ",")))
+  cat(paste("Optimal Price for Product 2: $", format(round(opt_price2, 2), big.mark = ",")))
 
-  print("\n\nProduct 1")
+  cat("\nProduct 1")
   competitionQuantity(opt_price1, opt_price2, data, type, wtp1, wtp2, quantity1, population, sample = NA)
   competitionRevenue(opt_price1, opt_price2, data, type, wtp1, wtp2, quantity1, population, sample = NA)
   competitionCost(opt_price1, opt_price2, data, type, wtp1, wtp2, quantity1, variable1, fixed1, population, sample = NA)
   competitionProfit(opt_price1, opt_price2, data, type, wtp1, wtp2, quantity1, variable1, fixed1, population, sample = NA)
 
-  print("\n\nProduct 2")
+  cat("\nProduct 2")
   competitionQuantity(opt_price2, opt_price1, data, type, wtp2, wtp1, quantity2, population, sample = NA)
   competitionRevenue(opt_price2, opt_price1, data, type, wtp2, wtp1, quantity2, population, sample = NA)
   competitionCost(opt_price2, opt_price1, data, type, wtp2, wtp1, quantity2, variable2, fixed2, population, sample = NA)
