@@ -310,6 +310,17 @@ expModel_multi <- function(data, x1, x2, y) lm(as.formula(paste("log(", y, " + "
 logModel_multi <- function(data, x1, x2, y) lm(as.formula(paste(y, "~ log(", x1, " + ", logErr, ")", "+", "log(", x2, " + ", logErr, ")")), data = data)
 powModel_multi <- function(data, x1, x2, y) lm(as.formula(paste("log(", y, " + ", logErr, ") ~ log(", x1, " + ", logErr, ")", "+", "log(", x2, " + ", logErr, ")")), data = data)
 
+sigModel_multi <- function(data, x1, x2, y){
+  check_packages()
+  output <- NA
+  tryCatch({
+    model <- nls(as.formula(paste(y, " ~ SSlogis(", x1, ", Asym1, xmid1, scal1) + SSlogis(", x2, ", Asym2, xmid2, scal2)")), data = data)
+  }, error = function(e) {
+    output <- NA
+    return(output)
+  }) -> output
+  return (output)
+}
 
 
 
@@ -331,7 +342,7 @@ anyModel_multi <- function(data, type, x1, x2, y){
          Exponential = do.call("expModel_multi", list(data, x1, x2, y)),
          Log         = do.call("logModel_multi", list(data, x1, x2, y)),
          Power       = do.call("powModel_multi", list(data, x1, x2, y)),
-         #Sigmoid     = do.call("sigModel", list(data, x1, x2, y)),
+         Sigmoid     = do.call("sigModel_multi", list(data, x1, x2, y)),
          stop("Invalid type"))
 }
 
