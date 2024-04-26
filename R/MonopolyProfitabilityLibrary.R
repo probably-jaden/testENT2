@@ -78,9 +78,6 @@ conNum_long <- function(number) {
   return(formatted_Num)
 }
 
-# 1. Check if the data coming in is a csv or excel
-
-# 2. Make the data into a tibble
 
 quantityCreation <- function(data){
 
@@ -106,25 +103,6 @@ removeDollarSigns <- function(vector){
   return(vector)
 }
 
-# initialize a matrix of 0s that's 10x10
-#mat <- matrix(0, nrow = 10, ncol = 10)
-#vec <- vector("numeric", length = 10)
-#lis <- list(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-#c_thing <- c("col1", "col2", "col3")
-
-#class(c_thing)
-
-#c_thing[1]
-
-#length(c_thing)
-#nrow(lis)
-#dim(c_thing)
-
-#while
-#data <- tibble(col1 = c("this", "$4", 4), col2 =  c(4, 2, "$3"))
-
-#any(grepl("\\$", data))
-#data <- removeDollarSigns(data)
 
 quantityCreation_multi <- function(data, col1 = NULL, col2 = NULL){
 
@@ -435,6 +413,7 @@ modelFun_multi <- function(data, type, x1, x2, y){
          Exponential = do.call("expFun_multi", list(data, x1, x2, y)),
          Log         = do.call("logFun_multi", list(data, x1, x2, y)),
          Power       = do.call("powFun_multi", list(data, x1, x2, y)),
+         Sigmoid     = do.call("sigFun_multi", list(data, x1, x2, y)),
          stop("Invalid type"))
 }
 
@@ -526,8 +505,6 @@ competitionQuantity <- function(price1, price2, data, type, wtp1, wtp2, quantity
   quantity <- fQm(data, type, wtp1, wtp2, quantity1, population, sample)(price1, price2)
   cat(paste0("Quantity Sold: ", format(round(quantity, 2), big.mark = ","), "\n"))
 }
-
-
 
 
 demandFunction <- function(price, data, type, population, sample = NA){
@@ -833,7 +810,6 @@ logFormulaFancy <- function(data, population, sample = NA){
   latex_string <- sprintf("%s - %s \\times \\log(Price)", int, slope)
   return(latex_string)
 }
-
 
 powFormulaFancy <- function(data, population, sample = NA){
   check_packages()
@@ -1267,10 +1243,6 @@ competitionCost <- function(price1, price2, data, type, wtp1, wtp2, quantity1, v
   cat(paste0("Cost is $", format(round(cost, 2), big.mark = ","), "\n"))
 }
 
-
-
-
-# for student use
 costFunction <- function(price, data, type, variable, fixed, population, sample = NA){
   check_packages()
   fQ <- fQ(data, type, population, sample)
@@ -1278,15 +1250,7 @@ costFunction <- function(price, data, type, variable, fixed, population, sample 
   return(fC(variable, fixed, fQ)(price))
 }
 
-# search for lowest function value at 0
-# look for the next intersect point
-#
 
-
-
-# if(testBool) costFunction(100, tb, "Sigmoid", 5, 2e5, 1e6, 100)
-
-# for internal code use
 fPi <- function(fR, fC) fPi <- function(p) fR(p) - fC(p)
 
 fPi_m <- function(data, type, x1, x2, y, var, fix, population, sample = NA){
@@ -1587,6 +1551,107 @@ competitionSolve <- function(data, type, wtp1, wtp2,
   competitionCost(opt_price2, opt_price1, data, type, wtp2, wtp1, quantity2, variable2, fixed2, population, sample = NA)
   competitionProfit(opt_price2, opt_price1, data, type, wtp2, wtp1, quantity2, variable2, fixed2, population, sample = NA)
 
+}
+
+
+matrix_3D <- function(stage, data_ex, type, col1, col2, y, population, sample, var = 0, fix = 0){
+  stage_function <- switch(stage,
+                           Quantity  = fQm(data_ex, type, col1, col2, y, population, sample),
+                           Revenue   = fRm(data_ex, type, col1, col2, y, population, sample),
+                           Cost      = fCm(data_ex, type, col1, col2, y, var, fix, population, sample),
+                           Profit    = fPi_m(data_ex, type, col1, col2, y, var, fix, population, sample),
+                           stop("Invalid type"))
+
+  x_intervals <- seq(min(data_ex[col1]), max(data_ex[col1]), length.out = 100) + 1e-10
+  y_intervals <- seq(min(data_ex[col2]), max(data_ex[col2]), length.out = 100) + 1e-10
+
+  grid <- expand.grid(x_cross = x_intervals, y_cross = y_intervals)
+
+  grid$z_vals <- with(grid, stage_function(x_cross, y_cross))
+  Q_matrix <- matrix(grid$z_vals, nrow = length(x_intervals), ncol = length(y_intervals), byrow = TRUE)
+
+  data_ex$x1Data <- data_ex[[col1]]
+  data_ex$x2Data <- data_ex[[col2]]
+  data_ex$yData <- data_ex[[y]]
+
+  return(list(Q_matrix, x_intervals, y_intervals, data_ex))
+}
+
+
+demandPlot3D <- function(data_ex, type, col1, col2, y, population, sample){
+  mat_obj <- matrix_3D("Quantity", data_ex, type, col1, col2, y, population, sample)
+  plot3D <- plot_ly(data = mat_obj[[4]], x = ~x1Data,
+                    y = ~x2Data , z = ~yData,
+                    type = 'scatter3d', mode = 'markers') %>%
+    add_surface(x = mat_obj[[2]],
+                y = mat_obj[[3]],
+                z = mat_obj[[1]],
+                opacity = 0.5, showscale = FALSE) %>%
+    layout(
+      scene = list(
+        xaxis = list(title = col1),
+        yaxis = list(title = col2),
+        zaxis = list(title = y)
+      )
+    )
+  return(plot3D)
+}
+
+revenuePlot3D <- function(data_ex, type, col1, col2, y, population, sample){
+  mat_obj <- matrix_3D("Revenue", data_ex, type, col1, col2, y, population, sample)
+  plot3D <- plot_ly() %>%
+    add_surface(x = mat_obj[[2]],
+                y = mat_obj[[3]],
+                z = mat_obj[[1]],
+                opacity = 0.5, showscale = FALSE) %>%
+    layout(
+      title = "Revenue",
+      margin = list(t = 100),
+      scene = list(
+        xaxis = list(title = col1),
+        yaxis = list(title = col2),
+        zaxis = list(title = "Revenue ($'s)")
+      )
+    )
+  return(plot3D)
+}
+
+costPlot3D <- function(data_ex, type, col1, col2, y, var, fix, population, sample){
+  mat_obj <- matrix_3D("Cost", data_ex, type, col1, col2, y, population, sample, var, fix)
+  plot3D <- plot_ly() %>%
+    add_surface(x = mat_obj[[2]],
+                y = mat_obj[[3]],
+                z = mat_obj[[1]],
+                opacity = 0.5, showscale = FALSE) %>%
+    layout(
+      title = "Cost",
+      margin = list(t = 100),
+      scene = list(
+        xaxis = list(title = col1),
+        yaxis = list(title = col2),
+        zaxis = list(title = "Cost ($'s)")
+      )
+    )
+  return(plot3D)
+}
+
+profitPlot3D <- function(data_ex, type, col1, col2, y, var, fix, population, sample){
+  mat_obj <- matrix_3D("Profit", data_ex, type, col1, col2, y, population, sample)
+  plot3D <- plot_ly() %>%
+    add_surface(x = mat_obj[[2]],
+                y = mat_obj[[3]],
+                z = mat_obj[[1]],
+                opacity = 0.5, showscale = FALSE) %>%
+    layout(
+      title = "Profit",
+      margin = list(t = 100),
+      scene = list(
+        xaxis = list(title = col1),
+        yaxis = list(title = col2),
+        zaxis = list(title = "Profit ($'s)")
+      )
+    )
+  return(plot3D)
 }
 
 

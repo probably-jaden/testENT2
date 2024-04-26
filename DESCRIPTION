@@ -13,7 +13,8 @@ Imports:
   ggplot2,
   gridExtra,
   scales,
-  data.table
+  data.table,
+  plotly
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

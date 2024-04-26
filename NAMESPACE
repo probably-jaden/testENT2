@@ -48,6 +48,6 @@ exportPattern("^[[:alpha:]]+")
 
  importFrom(data.table, `:=`)
 
-
+ importFrom(plotly, plot_ly)
 
 
