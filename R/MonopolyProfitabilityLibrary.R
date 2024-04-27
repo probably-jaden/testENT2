@@ -1595,7 +1595,8 @@ demandPlot3D <- function(data_ex, type, col1, col2, y, population, sample){
         zaxis = list(title = y)
       )
     )
-  return(list(plot3, model_summary))
+
+  return(list(plot3D, model_summary))
 }
 
 revenuePlot3D <- function(data_ex, type, col1, col2, y, population, sample){
