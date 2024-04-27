@@ -19,9 +19,6 @@ check_packages <- function() {
   }
 }
 
-
-
-
 #testing <- function(bool){
 #  if(bool){
 #   testBool <<- TRUE
@@ -186,7 +183,6 @@ pivotData <- function(data, columns, valueName, columnName){
   return(data)
 }
 
-
 groupByPrice_ThenSum <- function(data, price, varToSum, newName){
 
   data <- data %>%
@@ -337,7 +333,6 @@ modelSummary <- function(data, type, x, y){
 }
 
 demandSummary <- function(data, type) modelSummary(data, type, "wtp", "quantity")
-
 # returns the model function for your data
 linFun <- function(data, x, y) function(p) coef(linModel(data, x, y))[[1]] + coef(linModel(data, x, y))[[2]] * p
 expFun <- function(data, x, y) function(p) exp(coef(expModel(data, x, y))[[1]] + coef(expModel(data, x, y))[[2]] * p)
@@ -1579,6 +1574,11 @@ matrix_3D <- function(stage, data_ex, type, col1, col2, y, population, sample, v
 
 
 demandPlot3D <- function(data_ex, type, col1, col2, y, population, sample){
+  model_summary <- summary(anyModel_multi(data_ex, type, col1, col2, y))
+  r2 <- round(model_summary$adj.r.squared, 2)
+  sigma <- round(model_summary$sigma, 2)
+  title_str <- paste(type, ", r2:", r2, ", sigma:", sigma)
+
   mat_obj <- matrix_3D("Quantity", data_ex, type, col1, col2, y, population, sample)
   plot3D <- plot_ly(data = mat_obj[[4]], x = ~x1Data,
                     y = ~x2Data , z = ~yData,
@@ -1588,13 +1588,14 @@ demandPlot3D <- function(data_ex, type, col1, col2, y, population, sample){
                 z = mat_obj[[1]],
                 opacity = 0.5, showscale = FALSE) %>%
     layout(
+      title = title_str,
       scene = list(
         xaxis = list(title = col1),
         yaxis = list(title = col2),
         zaxis = list(title = y)
       )
     )
-  return(plot3D)
+  return(list(plot3, model_summary))
 }
 
 revenuePlot3D <- function(data_ex, type, col1, col2, y, population, sample){
