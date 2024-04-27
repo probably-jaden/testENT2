@@ -1577,7 +1577,7 @@ demandPlot3D <- function(data_ex, type, col1, col2, y, population, sample){
   model_summary <- summary(anyModel_multi(data_ex, type, col1, col2, y))
   r2 <- round(model_summary$adj.r.squared, 2)
   sigma <- round(model_summary$sigma, 2)
-  title_str <- paste(type, ", r2:", r2, ", sigma:", sigma)
+  title_str <- paste0(type, ", r2: ", r2, ", sigma: ", sigma)
 
   mat_obj <- matrix_3D("Quantity", data_ex, type, col1, col2, y, population, sample)
   plot3D <- plot_ly(data = mat_obj[[4]], x = ~x1Data,
@@ -1589,6 +1589,7 @@ demandPlot3D <- function(data_ex, type, col1, col2, y, population, sample){
                 opacity = 0.5, showscale = FALSE) %>%
     layout(
       title = title_str,
+      margin = list(t = 100),
       scene = list(
         xaxis = list(title = col1),
         yaxis = list(title = col2),
