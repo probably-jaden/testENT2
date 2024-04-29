@@ -1057,8 +1057,8 @@ sigFormula <- function(data, population, sample = NA){
   cat(paste0("\nAsymptotet: The demand/quantity does not exceed ", A_Int, " unit(s) got any price\n"))
   cat(paste0("Mid-Point: The curve will change from decreasing at an increasing \n           rate to a decreasing rate when the price equals $", B_Mid, "\n\n"))
 }
-# if(testBool) sigFormula(tb, 102)
 
+# if(testBool) sigFormula(tb, 102)
 
 demandFormula <- function(data, type, population, sample = NA){
   check_packages()
@@ -1073,7 +1073,6 @@ demandFormula <- function(data, type, population, sample = NA){
 
 # if(testBool) demandFormula(tb, "Sigmoid", 1,1)
 
-
 revenueOptimize <- function(data, type, population, sample = NA){
   check_packages()
   fR <- fR(data, type, population, sample)
@@ -1085,8 +1084,6 @@ revenueOptimize <- function(data, type, population, sample = NA){
   return(list(opt_Rev, opt_Price))
 }
 # if(testBool) revenueOptimize(tb, "Linear", 1e6, 100)
-
-
 
 revenuePlot <- function(data, type, population, sample = NA){
   check_packages()
@@ -1480,9 +1477,41 @@ nBestProfitPlots <- function(data, n, variable, fixed, pop, sample = NA){
 
 profitCompare <- function(data, variable, fixed, population, sample = NA) nBestProfitPlots(data, 3, variable, fixed, population, sample)
 
-
 #Test
 # if(testBool) profitCompare(dp, v, f, Pop, 100)
+
+
+profitOptLine <- function(data, type, x1, x2, y, var, fix, population, sample){
+  profitOptimizeMulti <- function(data, type, x1, x2, y, var, fix, population, sample){
+    returnFunction <- function(x2_price){
+      optFunction <- function(x1_price){
+        OptFun <- fPi_m(data, type, x1, x2, y, var, fix, population, sample)(x1_price, x2_price)
+        return(OptFun)
+      }
+      opt <- optimize(optFunction, lower = 0, upper = max(data[x1]), maximum = TRUE)
+      return(list(opt[[1]], opt[[2]]))
+    }
+    return(returnFunction)
+  }
+  lineGenFun <- profitOptimizeMulti(data, type, x1, x2, y, var, fix, population, sample)
+
+  x2_points <- seq(0, max(data[x2]), length.out = nrow(data))
+  lineData <- lapply(x2_points, function(value){
+    output <- lineGenFun(value)
+    list(x2_line = value, x1_line = output[[1]], profit_line = output[[2]])
+  })
+
+  lineData_df <- data.frame(do.call(rbind, lineData))
+  surface_mat <- matrix_3D("Profit", data, type, x1, x2, y, population, sample, var, fix)
+
+  plot3D <- plot_ly(lineData_df, x = ~x1_line, y = ~x2_line, z = ~profit_line, type = 'scatter3d', mode = 'lines',
+                    opacity = 1, line = list(width = 15, color = ~profit_line, colorscale = "algae", reverscale = FALSE)) %>%
+    add_surface(x = surface_mat[[2]],
+                y = surface_mat[[3]],
+                z = surface_mat[[1]],
+                opacity = 0.5, showscale = FALSE)
+  return(suppressWarnings(plot3D))
+}
 
 binary_Optim <- function(data, type, x1, x2, y1, y2, var1, fix1, var2, fix2, population, sample = NA){
   fPi_1 <- fPi_m(data, type, x1, x2, y1, var1, fix1, population, sample)
@@ -1548,7 +1577,6 @@ competitionSolve <- function(data, type, wtp1, wtp2,
 
 }
 
-
 matrix_3D <- function(stage, data_ex, type, col1, col2, y, population, sample, var = 0, fix = 0){
   stage_function <- switch(stage,
                            Quantity  = fQm(data_ex, type, col1, col2, y, population, sample),
@@ -1571,7 +1599,6 @@ matrix_3D <- function(stage, data_ex, type, col1, col2, y, population, sample, v
 
   return(list(Q_matrix, x_intervals, y_intervals, data_ex))
 }
-
 
 demandPlot3D <- function(data_ex, type, col1, col2, y, population, sample){
   model_summary <- summary(anyModel_multi(data_ex, type, col1, col2, y))
@@ -1639,7 +1666,7 @@ costPlot3D <- function(data_ex, type, col1, col2, y, var, fix, population, sampl
 }
 
 profitPlot3D <- function(data_ex, type, col1, col2, y, var, fix, population, sample){
-  mat_obj <- matrix_3D("Profit", data_ex, type, col1, col2, y, population, sample)
+  mat_obj <- matrix_3D("Profit", data_ex, type, col1, col2, y, population, sample, var, fix)
   plot3D <- plot_ly() %>%
     add_surface(x = mat_obj[[2]],
                 y = mat_obj[[3]],
