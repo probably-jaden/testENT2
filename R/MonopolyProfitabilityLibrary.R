@@ -734,21 +734,32 @@ demandPlot <- function(data, type, population, sample = NA){
   return(newPlot)
 }
 
+
 demandPlotMulti <- function(competitor_price, data, type, x1, x2, y, population, sample = NA){
   title <- paste("Demand:", type)
-  fQm <- fQm(data, type, x1, x2, y, population, sample = NA)
-  if(class(fQ) == class(NA))return()
+
+  fQm_this <- function(x_1) {
+    return(fQm(data, type, x1, x2, y, population, sample)(x_1, competitor_price))
+  }
+
+  if(class(fQm_this) == class(NA))return()
+
+  model_summary <- summary(anyModel_multi(data, type, x1, x2, y))
+  rSq <- round(model_summary$adj.r.squared, 3)
 
   if(class(sample) == class(NA)) sample <- nrow(data)
   scalar <- population/sample
 
-  newTibble <- data %>%
-    mutate(scaled_y = y * scalar)
+  data$scaled_y <- data[[y]] * scalar
+  new_df_1 <- data.frame(c0 = rep(1, nrow(data)))
+  new_df_1$x1 <- data[[x1]]
+  new_df_1$x2 <- data[[x2]]
+  new_df_1$y <- data$scaled_y
 
-  newPlot <- ggplot(data = newTibble)+
-    geom_function(fun = fQm,
+  newPlot <- ggplot(data = new_df_1)+
+    geom_function(fun = fQm_this,
                   color = "orange", lwd = 1.5, alpha = .8) +
-    geom_point(mapping = aes(x = wtp, y = scaled_quantity), color = "darkorange", size = 2)+
+    geom_point(mapping = aes(x = x1, y = y), color = "darkorange", size = 2)+
     labs(title = title, x = "Price ($'s)", y = "Quantity Sold ") +
     annotate("label", x = Inf, y = Inf,
              label = paste("R squared:", rSq),
@@ -764,7 +775,7 @@ demandPlotMulti <- function(competitor_price, data, type, x1, x2, y, population,
           axis.title.x =element_text(size = 8),
           axis.title.y =element_text(size = 8))+
     theme(plot.title = element_text(face = "bold"))
-
+  return(suppressWarnings(newPlot))
 }
 
 #if(testBool) demandPlot(dp, "Exponential", 1e6, 100)
@@ -1506,7 +1517,7 @@ profitOptLine <- function(data, type, x1, x2, y, var, fix, population, sample){
 
   title_str <- paste("Profit Optimization Line for", x1)
 
-  data$Profit_Obs = (data[[x1]] * (data_ex[[y]] * (population/sample))) - (((data[[y]]* (population/sample)) * var) + fix)
+  data$Profit_Obs = (data[[x1]] * (data[[y]] * (population/sample))) - (((data[[y]]* (population/sample)) * var) + fix)
   points_df <- data.frame(x = data[[x1]], y = data[[x2]], z = data$Profit_Obs)
 
   surface_mat <- matrix_3D("Profit", data, type, x1, x2, y, population, sample, var, fix)
@@ -1697,7 +1708,6 @@ matrix_3D <- function(stage, data_ex, type, col1, col2, y, population, sample, v
   return(list(Q_matrix, x_intervals, y_intervals, data_ex))
 }
 
-
 demandPlot3D <- function(data_ex, type, col1, col2, y, population, sample){
   model_summary <- summary(anyModel_multi(data_ex, type, col1, col2, y))
   r2 <- round(model_summary$adj.r.squared, 2)
@@ -1726,7 +1736,6 @@ demandPlot3D <- function(data_ex, type, col1, col2, y, population, sample){
 
   return(list(plot3D, model_summary))
 }
-
 
 revenuePlot3D <- function(data_ex, type, col1, col2, y, population, sample){
 
