@@ -1495,21 +1495,118 @@ profitOptLine <- function(data, type, x1, x2, y, var, fix, population, sample){
   }
   lineGenFun <- profitOptimizeMulti(data, type, x1, x2, y, var, fix, population, sample)
 
-  x2_points <- seq(0, max(data[x2]), length.out = nrow(data))
+  x2_points <- seq(0.000001, max(data[x2]), length.out = nrow(data))
   lineData <- lapply(x2_points, function(value){
     output <- lineGenFun(value)
     list(x2_line = value, x1_line = output[[1]], profit_line = output[[2]])
   })
 
-  lineData_df <- data.frame(do.call(rbind, lineData))
+  lineData_df <- data.frame(do.call(rbind, lineData)) %>%
+    mutate(line_color = ifelse(profit_line > 0, "green", "red"))
+
+  title_str <- paste("Profit Optimization Line for", x1)
+
+  data$Profit_Obs = (data[[x1]] * (data_ex[[y]] * (population/sample))) - (((data[[y]]* (population/sample)) * var) + fix)
+  points_df <- data.frame(x = data[[x1]], y = data[[x2]], z = data$Profit_Obs)
+
   surface_mat <- matrix_3D("Profit", data, type, x1, x2, y, population, sample, var, fix)
 
-  plot3D <- plot_ly(lineData_df, x = ~x1_line, y = ~x2_line, z = ~profit_line, type = 'scatter3d', mode = 'lines',
-                    opacity = 1, line = list(width = 15, color = ~profit_line, colorscale = "algae", reverscale = FALSE)) %>%
+  plot3D <- plot_ly() %>%
+    add_markers(data = points_df, x = ~x, y = ~y, z = ~z, color = ~z,
+                name = "data", marker = list(size = 3, opacity = 0.5)) %>%
+    add_trace(x = c(0), y = c(0), z = c(0), mode = 'lines', size =.001,
+                name = "optimal profit", showlegend = TRUE, line = list(color = "green")) %>%
+    add_trace(data = lineData_df, x = ~x1_line, y = ~x2_line, z = ~profit_line, type = 'scatter3d', mode = 'lines',
+                    showlegend = FALSE, opacity = 1, line = list(width = 8, color = ~line_color, reverscale = FALSE)) %>%
     add_surface(x = surface_mat[[2]],
                 y = surface_mat[[3]],
                 z = surface_mat[[1]],
-                opacity = 0.5, showscale = FALSE)
+                opacity = 0.5, showscale = FALSE)%>%
+    layout(
+      title = title_str,
+      margin = list(t = 100),
+      scene = list(
+        xaxis = list(title = x1),
+        yaxis = list(title = x2),
+        zaxis = list(title = "Profit ($'s)")
+      )
+    )
+  return(suppressWarnings(plot3D))
+}
+
+
+nash <- function(data, type, x1, x2, y1, y2, var1, fix1, var2, fix2, population, sample){
+  profitOptimizeMulti <- function(data, type, x1, x2, y, var, fix, population, sample){
+    returnFunction <- function(x2_price){
+      optFunction <- function(x1_price){
+        OptFun <- fPi_m(data, type, x1, x2, y, var, fix, population, sample)(x1_price, x2_price)
+        return(OptFun)
+      }
+      opt <- optimize(optFunction, lower = 0, upper = max(data[x1]), maximum = TRUE)
+      return(list(opt[[1]], opt[[2]]))
+    }
+    return(returnFunction)
+  }
+  lineGenFun1 <- profitOptimizeMulti(data, type, x1, x2, y1, var1, fix1, population, sample)
+  lineGenFun2 <- profitOptimizeMulti(data, type, x2, x1, y2, var2, fix2, population, sample)
+
+  x2_points <- seq(0.00000000001, max(data[x2]), length.out = nrow(data))
+  lineData1 <- lapply(x2_points, function(value){
+    output <- lineGenFun1(value)
+    list(x2_line1 = value, x1_line1 = output[[1]], profit_line1 = output[[2]])
+  })
+
+  x1_points <- seq(0.00000000001, max(data[x1]), length.out = nrow(data))
+  lineData2 <- lapply(x1_points, function(value){
+    output <- lineGenFun2(value)
+    list(x1_line2 = value, x2_line2 = output[[1]], profit_line2 = output[[2]])
+  })
+
+  lineData_df1 <- data.frame(do.call(rbind, lineData1))
+  lineData_df2 <- data.frame(do.call(rbind, lineData2))
+  lineData_df <- cbind(lineData_df1, lineData_df2) %>%
+    mutate(line1_color = ifelse(profit_line1 > 0, "lightsalmon", "red"),
+           line2_color = ifelse(profit_line2 > 0, "lightblue", "darkblue"))
+
+  nash_point <-binary_Optim(data, type, x1, x2, y1, y2, var1, fix1, var2, fix2, population, sample)
+  points_df <- data.frame(x = rep(nash_point[[1]],2), y = rep(nash_point[[2]],2), profit = rep(NA,2), point_color = rep(NA,2))
+  points_df[1,3] <- lineGenFun1(nash_point[[2]])[[2]]
+  points_df[2,3] <- lineGenFun2(nash_point[[1]])[[2]]
+  points_df[1,4] <- ifelse(points_df[1,3] > 0, "lightsalmon", "red")
+  points_df[2,4] <- ifelse(points_df[2,3] > 0, "lightblue", "darkblue")
+
+  surface_mat1 <- matrix_3D("Profit", data, type, x1, x2, y1, population, sample, var1, fix1)
+  surface_mat2 <- matrix_3D("Profit", data, type, x2, x1, y2, population, sample, var2, fix2)
+
+  title_str <- paste0("Equilibrium firm 1: $", round(nash_point[[1]], 2), ", firm 2: $", round(nash_point[[2]], 2))
+
+  plot3D <- plot_ly() %>%
+    add_markers(data = points_df,  x = ~x, y = ~y, z = ~profit,
+                type = 'scatter3d', mode = 'markers', name = "equilibrium", opacity = 1,
+                marker = list(size = 4.5, color = ~point_color)) %>%
+    add_trace(data = lineData_df, x = ~x1_line1, y = ~x2_line1, z = ~profit_line1,
+                    type = 'scatter3d', mode = 'lines',showlegend = FALSE, opacity = .8,
+                    line = list(width = 8, color = ~line1_color, reverscale = FALSE)) %>%
+    add_trace(data = lineData_df, x = ~x1_line2, y = ~x2_line2, z = ~profit_line2,
+              type = 'scatter3d', mode = 'lines', opacity = .8, showlegend = FALSE,
+              line = list(width = 8, color = ~line2_color, reverscale = FALSE)) %>%
+    add_surface(x = surface_mat1[[2]],
+                y = surface_mat1[[3]],
+                z = surface_mat1[[1]],
+                opacity = 0.3, showscale = FALSE, color = ~surface_mat2[[1]], colorscale = "YlOrRd") %>%
+    add_surface(x = surface_mat2[[3]],
+                y = surface_mat2[[2]],
+                z = t(surface_mat2[[1]]),
+                opacity = 0.2, showscale = FALSE, color = ~surface_mat2[[1]], colorscale = "Blues") %>%
+    layout(
+      title = title_str,
+      margin = list(t = 100),
+      scene = list(
+        xaxis = list(title = x1),
+        yaxis = list(title = x2),
+        zaxis = list(title = "Profit ($'s)")
+      )
+    )
   return(suppressWarnings(plot3D))
 }
 
@@ -1574,8 +1671,8 @@ competitionSolve <- function(data, type, wtp1, wtp2,
   competitionRevenue(opt_price2, opt_price1, data, type, wtp2, wtp1, quantity2, population, sample = NA)
   competitionCost(opt_price2, opt_price1, data, type, wtp2, wtp1, quantity2, variable2, fixed2, population, sample = NA)
   competitionProfit(opt_price2, opt_price1, data, type, wtp2, wtp1, quantity2, variable2, fixed2, population, sample = NA)
-
 }
+
 
 matrix_3D <- function(stage, data_ex, type, col1, col2, y, population, sample, var = 0, fix = 0){
   stage_function <- switch(stage,
@@ -1607,9 +1704,11 @@ demandPlot3D <- function(data_ex, type, col1, col2, y, population, sample){
   title_str <- paste0(type, ", r2: ", r2, ", sigma: ", sigma)
 
   mat_obj <- matrix_3D("Quantity", data_ex, type, col1, col2, y, population, sample)
-  plot3D <- plot_ly(data = mat_obj[[4]], x = ~x1Data,
-                    y = ~x2Data , z = ~yData,
-                    type = 'scatter3d', mode = 'markers') %>%
+
+  plot3D <- plot_ly() %>%
+    add_markers(data = mat_obj[[4]], x = ~x1Data,
+                    y = ~x2Data , z = ~yData * (population/sample), opacity = .8,
+                    size = 4, type = 'scatter3d', mode = 'markers', name = "data") %>%
     add_surface(x = mat_obj[[2]],
                 y = mat_obj[[3]],
                 z = mat_obj[[1]],
@@ -1627,9 +1726,17 @@ demandPlot3D <- function(data_ex, type, col1, col2, y, population, sample){
   return(list(plot3D, model_summary))
 }
 
+
 revenuePlot3D <- function(data_ex, type, col1, col2, y, population, sample){
+
+  data_ex$Revenue_Obs = data_ex[[col1]] * (data_ex[[y]]* (population/sample))
+  points_df <- data.frame(x = data_ex[[col1]], y = data_ex[[col2]], z = data_ex$Revenue_Obs)
+
   mat_obj <- matrix_3D("Revenue", data_ex, type, col1, col2, y, population, sample)
+
   plot3D <- plot_ly() %>%
+    add_markers(data = points_df, x = ~x, y = ~y, z = ~z,
+                type = 'scatter3d', mode = 'markers', name = "data", marker = list(size = 4)) %>%
     add_surface(x = mat_obj[[2]],
                 y = mat_obj[[3]],
                 z = mat_obj[[1]],
@@ -1645,6 +1752,7 @@ revenuePlot3D <- function(data_ex, type, col1, col2, y, population, sample){
     )
   return(plot3D)
 }
+
 
 costPlot3D <- function(data_ex, type, col1, col2, y, var, fix, population, sample){
   mat_obj <- matrix_3D("Cost", data_ex, type, col1, col2, y, population, sample, var, fix)
