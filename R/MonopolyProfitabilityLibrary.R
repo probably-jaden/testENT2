@@ -1512,17 +1512,17 @@ profitOptLine <- function(data, type, x1, x2, y, var, fix, population, sample){
   surface_mat <- matrix_3D("Profit", data, type, x1, x2, y, population, sample, var, fix)
 
   plot3D <- plot_ly() %>%
-    add_markers(data = points_df, x = ~x, y = ~y, z = ~z, color = ~z,
+    plotly::add_markers(data = points_df, x = ~x, y = ~y, z = ~z, color = ~z,
                 name = "data", marker = list(size = 3, opacity = 0.5)) %>%
-    add_trace(x = c(0), y = c(0), z = c(0), mode = 'lines', size =.001,
+    plotly::add_trace(x = c(0), y = c(0), z = c(0), mode = 'lines', size =.001,
                 name = "optimal profit", showlegend = TRUE, line = list(color = "green")) %>%
-    add_trace(data = lineData_df, x = ~x1_line, y = ~x2_line, z = ~profit_line, type = 'scatter3d', mode = 'lines',
+    plotly::add_trace(data = lineData_df, x = ~x1_line, y = ~x2_line, z = ~profit_line, type = 'scatter3d', mode = 'lines',
                     showlegend = FALSE, opacity = 1, line = list(width = 8, color = ~line_color, reverscale = FALSE)) %>%
-    add_surface(x = surface_mat[[2]],
+    plotly::add_surface(x = surface_mat[[2]],
                 y = surface_mat[[3]],
                 z = surface_mat[[1]],
                 opacity = 0.5, showscale = FALSE)%>%
-    layout(
+    plotly::layout(
       title = title_str,
       margin = list(t = 100),
       scene = list(
@@ -1580,25 +1580,25 @@ nash <- function(data, type, x1, x2, y1, y2, var1, fix1, var2, fix2, population,
 
   title_str <- paste0("Equilibrium firm 1: $", round(nash_point[[1]], 2), ", firm 2: $", round(nash_point[[2]], 2))
 
-  plot3D <- plot_ly() %>%
-    add_markers(data = points_df,  x = ~x, y = ~y, z = ~profit,
+  plot3D <- plotly::plot_ly() %>%
+    plotly::add_markers(data = points_df,  x = ~x, y = ~y, z = ~profit,
                 type = 'scatter3d', mode = 'markers', name = "equilibrium", opacity = 1,
                 marker = list(size = 4.5, color = ~point_color)) %>%
-    add_trace(data = lineData_df, x = ~x1_line1, y = ~x2_line1, z = ~profit_line1,
+    plotly::add_trace(data = lineData_df, x = ~x1_line1, y = ~x2_line1, z = ~profit_line1,
                     type = 'scatter3d', mode = 'lines',showlegend = FALSE, opacity = .8,
                     line = list(width = 8, color = ~line1_color, reverscale = FALSE)) %>%
-    add_trace(data = lineData_df, x = ~x1_line2, y = ~x2_line2, z = ~profit_line2,
+    plotly::add_trace(data = lineData_df, x = ~x1_line2, y = ~x2_line2, z = ~profit_line2,
               type = 'scatter3d', mode = 'lines', opacity = .8, showlegend = FALSE,
               line = list(width = 8, color = ~line2_color, reverscale = FALSE)) %>%
-    add_surface(x = surface_mat1[[2]],
+    plotly::add_surface(x = surface_mat1[[2]],
                 y = surface_mat1[[3]],
                 z = surface_mat1[[1]],
                 opacity = 0.3, showscale = FALSE, color = ~surface_mat2[[1]], colorscale = "YlOrRd") %>%
-    add_surface(x = surface_mat2[[3]],
+    plotly::add_surface(x = surface_mat2[[3]],
                 y = surface_mat2[[2]],
                 z = t(surface_mat2[[1]]),
                 opacity = 0.2, showscale = FALSE, color = ~surface_mat2[[1]], colorscale = "Blues") %>%
-    layout(
+    plotly::layout(
       title = title_str,
       margin = list(t = 100),
       scene = list(
@@ -1697,6 +1697,7 @@ matrix_3D <- function(stage, data_ex, type, col1, col2, y, population, sample, v
   return(list(Q_matrix, x_intervals, y_intervals, data_ex))
 }
 
+
 demandPlot3D <- function(data_ex, type, col1, col2, y, population, sample){
   model_summary <- summary(anyModel_multi(data_ex, type, col1, col2, y))
   r2 <- round(model_summary$adj.r.squared, 2)
@@ -1705,15 +1706,15 @@ demandPlot3D <- function(data_ex, type, col1, col2, y, population, sample){
 
   mat_obj <- matrix_3D("Quantity", data_ex, type, col1, col2, y, population, sample)
 
-  plot3D <- plot_ly() %>%
-    add_markers(data = mat_obj[[4]], x = ~x1Data,
-                    y = ~x2Data , z = ~yData * (population/sample), opacity = .8,
-                    size = 4, type = 'scatter3d', mode = 'markers', name = "data") %>%
-    add_surface(x = mat_obj[[2]],
+  plot3D <- plotly::plot_ly() %>%
+    plotly::add_markers(data = mat_obj[[4]], x = ~x1Data,
+                    y = ~x2Data , z = ~yData * (population/sample), opacity = .95,
+                    size = 7, type = 'scatter3d', mode = 'markers', name = "data") %>%
+    plotly::add_surface(x = mat_obj[[2]],
                 y = mat_obj[[3]],
                 z = mat_obj[[1]],
                 opacity = 0.5, showscale = FALSE) %>%
-    layout(
+    plotly::layout(
       title = title_str,
       margin = list(t = 100),
       scene = list(
@@ -1734,14 +1735,14 @@ revenuePlot3D <- function(data_ex, type, col1, col2, y, population, sample){
 
   mat_obj <- matrix_3D("Revenue", data_ex, type, col1, col2, y, population, sample)
 
-  plot3D <- plot_ly() %>%
-    add_markers(data = points_df, x = ~x, y = ~y, z = ~z,
+  plot3D <- plotly::plot_ly() %>%
+    plotly::add_markers(data = points_df, x = ~x, y = ~y, z = ~z,
                 type = 'scatter3d', mode = 'markers', name = "data", marker = list(size = 4)) %>%
-    add_surface(x = mat_obj[[2]],
+    plotly::add_surface(x = mat_obj[[2]],
                 y = mat_obj[[3]],
                 z = mat_obj[[1]],
                 opacity = 0.5, showscale = FALSE) %>%
-    layout(
+    plotly::layout(
       title = "Revenue",
       margin = list(t = 100),
       scene = list(
@@ -1756,12 +1757,12 @@ revenuePlot3D <- function(data_ex, type, col1, col2, y, population, sample){
 
 costPlot3D <- function(data_ex, type, col1, col2, y, var, fix, population, sample){
   mat_obj <- matrix_3D("Cost", data_ex, type, col1, col2, y, population, sample, var, fix)
-  plot3D <- plot_ly() %>%
-    add_surface(x = mat_obj[[2]],
+  plot3D <- plotly::plot_ly() %>%
+    plotly::add_surface(x = mat_obj[[2]],
                 y = mat_obj[[3]],
                 z = mat_obj[[1]],
                 opacity = 0.5, showscale = FALSE) %>%
-    layout(
+    plotly::layout(
       title = "Cost",
       margin = list(t = 100),
       scene = list(
@@ -1775,12 +1776,12 @@ costPlot3D <- function(data_ex, type, col1, col2, y, var, fix, population, sampl
 
 profitPlot3D <- function(data_ex, type, col1, col2, y, var, fix, population, sample){
   mat_obj <- matrix_3D("Profit", data_ex, type, col1, col2, y, population, sample, var, fix)
-  plot3D <- plot_ly() %>%
-    add_surface(x = mat_obj[[2]],
+  plot3D <- plotly::plot_ly() %>%
+    plotly::add_surface(x = mat_obj[[2]],
                 y = mat_obj[[3]],
                 z = mat_obj[[1]],
                 opacity = 0.5, showscale = FALSE) %>%
-    layout(
+    plotly::layout(
       title = "Profit",
       margin = list(t = 100),
       scene = list(
