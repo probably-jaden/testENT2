@@ -202,26 +202,6 @@ demandNonDurable <- function(data, price, quantityPerPerson){
   return(data)
 }
 
-
-
-scatterPlot <- function(data, xColumn, yColumn){
-
-  # Check if columns exist in the data
-  if (!(xColumn %in% names(data) && yColumn %in% names(data))) {
-    stop("Specified columns do not exist in the data.")
-  }
-
-  title <- paste0(xColumn, " vs. ", yColumn)
-  # Create scatter plot
-  ggplot(data, aes(x = !!sym(xColumn), y = !!sym(yColumn))) +
-    labs(title = title)+
-    geom_point(color = "darkorchid") +
-    theme_minimal()+
-    labs(x = xColumn, y = yColumn)
-}
-# if(testBool) scatterPlot(tb, "quantity", "wtp")
-
-
 demandScatterPlot <- function(data){
   check_packages()
   sPlot<- scatterPlot(data, 'wtp', 'quantity')
@@ -295,6 +275,7 @@ sigModel_multi <- function(data, x1, x2, y){
   }) -> output
   return (output)
 }
+
 
 
 
@@ -1708,6 +1689,35 @@ matrix_3D <- function(stage, data_ex, type, col1, col2, y, population, sample, v
   return(list(Q_matrix, x_intervals, y_intervals, data_ex))
 }
 
+#data_ex <- cd_clean
+#col1 = "cupcakes"
+#col2 = "donuts"
+
+#x_intervals <- seq(min(data_ex[col1]), max(data_ex[col1]), length.out = 100) + 1e-10
+#y_intervals <- seq(min(data_ex[col2]), max(data_ex[col2]), length.out = 100) + 1e-10
+#grid <- expand.grid(x_cross = x_intervals, y_cross = y_intervals)
+
+#new_data <- data.frame(cupcakes = grid$x_cross,
+#                   donuts = grid$y_cross)
+
+#preds <- predict(object = test_mlsr, newdata = new_data)
+
+#Q_matrix <- matrix(preds, nrow = length(x_intervals), ncol = length(y_intervals), byrow = TRUE)
+
+#title_str <- "test"
+#plotly::plot_ly() %>%
+#  plotly::add_markers(data =cd_clean, x = ~cupcakes,
+#                      y = ~donuts , z = ~Q_donuts, type = 'scatter3d', mode = 'markers', name = "data", marker = list(size = 4)) %>%
+#  plotly::add_surface(x = x_intervals,
+#                      y = y_intervals,
+#                      z = Q_matrix,
+#                      opacity = 0.5, showscale = FALSE) %>%
+#  plotly::layout(
+#    title = title_str,
+#    margin = list(t = 100)
+#  )
+
+
 demandPlot3D <- function(data_ex, type, col1, col2, y, population, sample){
   model_summary <- summary(anyModel_multi(data_ex, type, col1, col2, y))
   r2 <- round(model_summary$adj.r.squared, 2)
@@ -1737,31 +1747,47 @@ demandPlot3D <- function(data_ex, type, col1, col2, y, population, sample){
   return(list(plot3D, model_summary))
 }
 
-revenuePlot3D <- function(data_ex, type, col1, col2, y, population, sample){
 
-  data_ex$Revenue_Obs = data_ex[[col1]] * (data_ex[[y]]* (population/sample))
-  points_df <- data.frame(x = data_ex[[col1]], y = data_ex[[col2]], z = data_ex$Revenue_Obs)
+#cd_clean
 
-  mat_obj <- matrix_3D("Revenue", data_ex, type, col1, col2, y, population, sample)
+#nls.control(minFactor = 1/4096)
+#test_mlsr <- nls(Q_donuts ~ Asym / (1 + exp((xmid - donuts - cupcakes)/scal)),
+#                 start = list(Asym = 20, xmid = 2, scal = -1),
+#                 control = nls.control(minFactor = 1/1042, maxiter = 50),
+#                 data = cd_clean)
 
-  plot3D <- plotly::plot_ly() %>%
-    plotly::add_markers(data = points_df, x = ~x, y = ~y, z = ~z,
-                type = 'scatter3d', mode = 'markers', name = "data", marker = list(size = 4)) %>%
-    plotly::add_surface(x = mat_obj[[2]],
-                y = mat_obj[[3]],
-                z = mat_obj[[1]],
-                opacity = 0.5, showscale = FALSE) %>%
-    plotly::layout(
-      title = "Revenue",
-      margin = list(t = 100),
-      scene = list(
-        xaxis = list(title = col1),
-        yaxis = list(title = col2),
-        zaxis = list(title = "Revenue ($'s)")
-      )
-    )
-  return(plot3D)
-}
+#pred <- data.frame(cupcakes = cd_clean$cupcakes,
+#                   donuts = cd_clean$donuts,
+#                   Q_donuts = predict(test_mlsr))
+
+
+#getInitial(Q_donuts ~ SSlogis(cupcakes, Asym, xmid, scal), data = cd_clean)
+
+#revenuePlot3D <- function(data_ex, type, col1, col2, y, population, sample){
+
+#  data_ex$Revenue_Obs = data_ex[[col1]] * (data_ex[[y]]* (population/sample))
+#  points_df <- data.frame(x = data_ex[[col1]], y = data_ex[[col2]], z = #data_ex$Revenue_Obs)
+
+#  mat_obj <- matrix_3D("Revenue", data_ex, type, col1, col2, y, population, sample)
+
+#  plot3D <- plotly::plot_ly() %>%
+#    plotly::add_markers(data = points_df, x = ~x, y = ~y, z = ~z,
+#                type = 'scatter3d', mode = 'markers', name = "data", marker = list(size = 4)) %>%
+#    plotly::add_surface(x = mat_obj[[2]],
+#                y = mat_obj[[3]],
+#                z = mat_obj[[1]],
+#                opacity = 0.5, showscale = FALSE) %>%
+#    plotly::layout(
+#      title = "Revenue",
+#      margin = list(t = 100),
+#      scene = list(
+#        xaxis = list(title = col1),
+#        yaxis = list(title = col2),
+#        zaxis = list(title = "Revenue ($'s)")
+#      )
+#    )
+#  return(plot3D)
+#}
 
 
 costPlot3D <- function(data_ex, type, col1, col2, y, var, fix, population, sample){
