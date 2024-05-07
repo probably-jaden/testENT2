@@ -202,43 +202,6 @@ demandNonDurable <- function(data, price, quantityPerPerson){
   return(data)
 }
 
-demandScatterPlot <- function(data){
-  check_packages()
-  sPlot<- scatterPlot(data, 'wtp', 'quantity')
-
-  plot <- sPlot +
-    ylim(0, NA)+
-    geom_point(color = "darkorange", size = 1.5) +
-    labs(x = "Willingness to Pay ($'s)", y = "Quantity", title = "Demand") +
-    theme(axis.text = element_text(size = 6),
-          axis.title.x =element_text(size = 8),
-          axis.title.y =element_text(size = 8))+
-    theme(plot.title = element_text(face = "bold"))
-
-  return(plot)
-}
-# if(testBool) demandScatterPlot(tb)
-
-
-revenueScatterPlot <- function(data){
-  check_packages()
-  sPlot <- scatterPlot(data, 'wtp', 'revenue')
-
-  plot <- sPlot +
-    ylim(0, NA)+
-    geom_point(color = "deepskyblue", size = 1.5)+
-    labs(x = "Price ($'s)", y = "Revenue ($'s)", title = "Revenue") +
-    theme_minimal()+
-    theme(axis.text = element_text(size = 6),
-          axis.title.x =element_text(size = 8),
-          axis.title.y =element_text(size = 8))+
-    theme(plot.title = element_text(face = "bold"))
-  return(plot)
-}
-# if(testBool) revenueScatterPlot(tb)
-
-
-
 logErr <- .0000000000000000001
 
 # returns the model for your data
@@ -652,25 +615,7 @@ rSquared <- function(data, type, x, y){
 # if(testBool) rSquared(tb, "Sigmoid", 'wtp', 'quantity')
 rSquaredDemand <- function(data, type) rSquared(data, type, "wtp", "quantity")
 
-modelPlot <- function(data, type, x, y){
-  check_packages()
-  sPlot <- scatterPlot(data, x, y)
-  title <- paste0(x, " vs. ", y, ": ", type)
-  rSq <- round(rSquared(data, type, x, y), 3)
-  modelFun <- modelFun(data, type, x, y)
-  if(class(modelFun) == class(NA)) return()
 
-  newPlot <- sPlot +
-    geom_function(fun = modelFun, color = "orchid", lwd = 1.5, alpha =.4) +
-    labs(title = title)+
-    annotate("label", x = Inf, y = Inf,
-             label = paste("R squared:", rSq),
-             vjust = 1, hjust = 1,
-             color = "darkorchid", alpha = .8,
-             fontface = "bold")
-
-  return((newPlot))
-}
 # if(testBool) modelPlot(tb, "Sigmoid", "wtp", "quantity")
 
 #dp <- dplyr::tibble(wtp = c(64, 18, 46, 92, 110, 138, 113, 89, 0, 258, 205, 0, 18, 202, 46, 258, 0, 141, 0, 46, 61, 101, 64, 215, 95, 43, 46, 46, 132, 21, 18, 113, 9, 18, 21, 18, 104, 6, 0, 101, 6, 224, 322, 18, 316, 156, 104, 322, 285, 208, 316, 0, 288, 95, 6, 52, 46, 0, 18, 64, 98, 248, 18, 110, 0, 67, 0, 18, 0, 89, 132, 101, 18, 215, 18, 0, 0, 104, 285, 3, 46, 141, 322, 291, 89, 0, 101, 113, 67, 3, 132, 215, 224, 291, 9, 291, 267, 6, 6, 61, 178, 285, 64, 126, 0, 101, 15))
@@ -1154,23 +1099,7 @@ nBestModels <- function(data, x, y, n){
 nBestDemandModels <- function(data, n) nBestModels(data, "wtp", "quantity", n)
 bestModel <- function(data, x, y) nBestModels(data, x, y, 1)
 bestDemand <- function(data) nBestDemandModels(data, 1)
-# if(testBool) nBestModels(tb, "wtp", "quantity", 3)
 
-modelCompare <- function(data, x, y, n = 4) {
-  check_packages()
-  top_types <- nBestModels(data, x, y, n)
-  plot_list <- list()
-
-  for (type in top_types) {
-    nextPlot <- modelPlot(data, type, x, y)
-    plot_list <- c(plot_list, list(nextPlot))
-  }
-
-  # Combine all the plots using grid.arrange()
-  final_plot <- do.call(grid.arrange, plot_list)
-  return(final_plot)
-}
-# if(testBool) modelCompare(tb, "wtp", "quantity", 4)
 
 demandCompare <- function(data, population, sample = NA, n = 3) {
   check_packages()
