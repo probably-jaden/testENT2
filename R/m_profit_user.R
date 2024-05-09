@@ -5,7 +5,6 @@ source("R/monopoly.R")
 ###########################################
 
 profitPlot <- function(data, type, variable, fixed, population, sampleSize = NA, yCap = 0){
-  check_packages()
   fQ <- fQ(data, type, population, sampleSize)
   if(class(fQ) == class(NA)) return(NA)
   fR <- fR(data, type, population, sampleSize)
@@ -57,7 +56,6 @@ profitPlot <- function(data, type, variable, fixed, population, sampleSize = NA,
 }
 
 profitFunction <- function(price, data, type, variable, fixed, population, sample = NA){
-  check_packages()
 
   fQ <- fQ(data, type, population, sample)
   if(class(fQ) == class(NA)) return(NA)
@@ -106,7 +104,6 @@ profitFunction <- function(price, data, type, variable, fixed, population, sampl
 }
 
 profitOptimize <- function(data, type, variable, fixed, population, sample = NA){
-  check_packages()
 
   fQ <- fQ(data, type, population, sample)
   if(class(fQ) == class(NA)) return(NA)
@@ -123,7 +120,6 @@ profitOptimize <- function(data, type, variable, fixed, population, sample = NA)
 }
 
 profitRevFunction <- function(price, data, type, variable, fixed, population, sample = NA, yCap = 0){
-  check_packages()
   fQ <- fQ(data, type, population, sample)
   if(class(fQ) == class(NA)) return(NA)
   fR <- fR(data, type, population, sample)

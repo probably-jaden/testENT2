@@ -1,6 +1,20 @@
 source("R/duopoly.r")
 
 
+#' Title
+#'
+#' @param price1
+#' @param price2
+#' @param data
+#' @param type
+#' @param first_or_second
+#' @param population
+#' @param sample
+#'
+#' @return
+#' @export
+#'
+#' @examples
 competitionQuantity <- function(price1, price2, data, type, first_or_second, population, sample = NA){
   cols <- whichColumns(first_or_second, data)
   quantity <- fQm(data, type, cols[[1]], cols[[2]], cols[[3]], population, sample)(price1, price2)

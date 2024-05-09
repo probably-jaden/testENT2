@@ -5,7 +5,6 @@ source("R/monopoly.R")
 ###########################################
 
 revenueScatterPlot <- function(data){
-  check_packages()
   sPlot <- scatterPlot(data, 'wtp', 'revenue')
   plot <- sPlot +
     ylim(0, NA)+
@@ -20,7 +19,6 @@ revenueScatterPlot <- function(data){
 }
 
 revenuePlot <- function(data, type, population, sample = NA){
-  check_packages()
   title <- paste("Revenue:", type)
 
   fQ <- fQ(data, type, population, sample)
@@ -66,8 +64,6 @@ revenuePlot <- function(data, type, population, sample = NA){
 
 
 revenueFunction <- function(price, data, type, population, sample = NA){
-  check_packages()
-
   fQ <- fQ(data, type, population, sample)
   if(class(fQ) == class(NA)) return(NA)
   fR <- function(price) fQ(price) * price
@@ -113,7 +109,6 @@ revenueFunction <- function(price, data, type, population, sample = NA){
 }
 
 revenueCompare <- function(data, population, sample = NA, n = 3) {
-  check_packages()
   top_types <- nBestDemandModels(data, n)
   plot_list <- list()
 
@@ -128,7 +123,6 @@ revenueCompare <- function(data, population, sample = NA, n = 3) {
 }
 
 revenueOptimize <- function(data, type, population, sample = NA){
-  check_packages()
   fR <- fR(data, type, population, sample)
   opt_Rev <- optimize(fR, lower = 0, upper = max(data$wtp), maximum = TRUE )[[2]]
   opt_Price <- round(optimize(fR, lower = 0, upper = max(data$wtp), maximum = TRUE )[[1]],2)
@@ -143,7 +137,6 @@ revenueOptimize <- function(data, type, population, sample = NA){
 ###########################################
 
 costFunction <- function(price, data, type, variable, fixed, population, sample = NA){
-  check_packages()
   fQ <- fQ(data, type, population, sample)
   if(class(fQ) == class(NA)) return(NA)
   return(fC(variable, fixed, fQ)(price))

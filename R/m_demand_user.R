@@ -88,9 +88,7 @@ demandNonDurable <- function(data, price, quantityPerPerson){
 #'
 #' @examples
 demandScatterPlot <- function(data){
-  check_packages()
   sPlot<- scatterPlot(data, 'wtp', 'quantity')
-
   plot <- sPlot +
     ylim(0, NA)+
     geom_point(color = "darkorange", size = 1.5) +
@@ -312,7 +310,6 @@ demandFunction <- function(price, data, type, population, sample = NA){
 #'
 #' @examples
 demandCompare <- function(data, population, sample = NA, n = 3) {
-  check_packages()
   top_types <- nBestDemandModels(data, n)
   plot_list <- list()
 
