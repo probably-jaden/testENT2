@@ -74,7 +74,6 @@ logModel <- function(data, x, y) lm(as.formula(paste(y, "~ log(", x, " + ", logE
 powModel <- function(data, x, y) lm(as.formula(paste("log(", y, " + ", logErr, ") ~ log(", x, " + ", logErr, ")")), data = data)
 
 sigModel <- function(data, x, y){
-  check_packages()
   output <- NA
   tryCatch({
     model <- nls(as.formula(paste(y, " ~ SSlogis(", x, ",Asym, xmid, scal)")), data = data)
@@ -103,10 +102,8 @@ modelSummary <- function(data, type, x, y){
 }
 
 rSquared <- function(data, type, x, y){
-  check_packages()
   if(type == "Sigmoid"){
     model <- sigModel(data, x, y)
-
     if(class(model) != class(NA)){
       predicted <- predict(model)
       residuals <- data[[y]] - predicted
@@ -339,7 +336,6 @@ logFormula <- function(data, population, sample = NA) {
 }
 
 powFormula <- function(data, population, sample = NA) {
-  check_packages()
   if(class(sample) == class(NA)) sample <- nrow(data)
   scalar <- round(population/sample, 2)
 
@@ -360,7 +356,6 @@ powFormula <- function(data, population, sample = NA) {
 }
 
 sigFormula <- function(data, population, sample = NA){
-  check_packages()
   if(class(sample) == class(NA)) sample <- nrow(data)
   scalar <- round(population/sample, 2)
 
@@ -385,7 +380,6 @@ logFun <- function(data, x, y) function(p) coef(logModel(data, x, y))[[1]] + coe
 powFun <- function(data, x, y) function(p) exp(coef(powModel(data, x, y))[[1]] + coef(powModel(data, x, y))[[2]] * log(p))
 
 sigFun <- function(data, x, y) {
-  check_packages()
   sModel <- sigModel(data, x, y)
   fun <- NA
   if(class(sModel) != class(NA)) fun <- function(p) coef(sModel)[[1]] / (1 + exp(-(p - coef(sModel)[[2]]) / coef(sModel)[[3]]))
@@ -393,7 +387,6 @@ sigFun <- function(data, x, y) {
 }
 
 modelFun <- function(data, type, x, y){
-  check_packages()
   switch(type,
          Linear      = do.call("linFun", list(data, x, y)),
          Exponential = do.call("expFun", list(data, x, y)),
@@ -404,7 +397,6 @@ modelFun <- function(data, type, x, y){
 }
 
 scaleFunction <- function(data, type, x, y, pop, sample = NA, fun = NA){
-  check_packages()
   if(class(fun) == class(NA)) fun <- modelFun(data, type, x, y)
   if(class(fun) == class(NA)) return(NA)
   if(class(sample) == class(NA)) sample <- nrow(data)
@@ -424,7 +416,6 @@ fC <- function(variable, fixed, fQ) fC <- function(p) fixed + variable * fQ(p)
 fPi <- function(fR, fC) fPi <- function(p) fR(p) - fC(p)
 
 nBestProfitPlots <- function(data, n, variable, fixed, pop, sample = NA){
-  check_packages()
   top_models<-nBestDemandModels(data, n)
   plot_list <- list()
 
