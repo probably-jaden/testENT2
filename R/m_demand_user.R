@@ -14,7 +14,7 @@ source("R/monopoly.R")
 #' @export
 #'
 #' @examples
-demandDurable <- function(data, col1 = NULL){ #, col2 = NULL){
+demandDurable <- function(data = NULL, col1 = NULL){ #, col2 = NULL){
   # Data scrubbing Willingness to Pay variable
   # if vector is labelled
   # for length of cols do the thing
@@ -24,6 +24,10 @@ demandDurable <- function(data, col1 = NULL){ #, col2 = NULL){
 
   #  return(data)
   #}
+  if(is.null(data)){
+    return("No data provided")
+  }
+
   if (!any(colnames(data) %in% "wtp")){
     if("WTP" %in% colnames(data)){
       data <- data %>%
@@ -56,7 +60,6 @@ demandDurable <- function(data, col1 = NULL){ #, col2 = NULL){
   data <- revenueCreation(data)
   return(data)
 }
-
 
 
 #' Title
