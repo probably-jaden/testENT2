@@ -206,13 +206,19 @@ demandFormula2 <- function(data, type, population, sample = NA){
 #' @export
 #'
 #' @examples
-demandPlot <- function(data, type, population, sample = NA){
+#'
+
+
+demandPlot <- function(data = NULL, type = NULL, population = NULL, sample = NULL){
+  if(is.null(data) | is.null(type) | is.null(population) | is.null(sample)){
+    return("Nice!")
+  }
   title <- paste("Demand:", type)
   rSq <- round(rSquaredDemand(data, type), 3)
   fQ <- fQ(data, type, population, sample)
   if(class(fQ) == class(NA))return()
 
-  if(class(sample) == class(NA)) sample <- nrow(data)
+  if(is.null(sample)) sample <- nrow(data)
   scalar <- population/sample
 
   newTibble <- data %>%
