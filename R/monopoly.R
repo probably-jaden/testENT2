@@ -1,15 +1,15 @@
-conNum_short <- function(number){
+conNum_short <- function(number) {
   rounded_Num <- abs(round(number, 3))
-  formatted_Num <- if(rounded_Num >= 1e12) {
+  formatted_Num <- if (rounded_Num >= 1e12) {
     paste0(format(rounded_Num / 1e12, digits = 2), "t")
-  } else if(rounded_Num >= 1e9) {
+  } else if (rounded_Num >= 1e9) {
     paste0(format(rounded_Num / 1e9, digits = 2), "b")
-  } else if(rounded_Num >= 1e6) {
+  } else if (rounded_Num >= 1e6) {
     paste0(format(rounded_Num / 1e6, digits = 2), "m")
-  } else if(rounded_Num >= 1e3) {
+  } else if (rounded_Num >= 1e3) {
     paste0(format(rounded_Num / 1e3, digits = 2), "k")
   } else {
-    as.character(rounded_Num)  # Keep the value unchanged for var below 1K
+    as.character(rounded_Num) # Keep the value unchanged for var below 1K
   }
   return(formatted_Num)
 }
@@ -24,12 +24,12 @@ conNum_long <- function(number) {
   } else if (abs(rounded_Num) >= 1e3) {
     paste0(ifelse(rounded_Num < 0, "-", ""), format(abs(rounded_Num) / 1e3, digits = 3), " \ thousand")
   } else {
-    as.character(rounded_Num)  # Keep the value unchanged for values below 1K
+    as.character(rounded_Num) # Keep the value unchanged for values below 1K
   }
   return(formatted_Num)
 }
 
-quantityCreation <- function(data){
+quantityCreation <- function(data) {
   data <- data %>%
     group_by(wtp) %>%
     summarize(count = n()) %>%
@@ -38,30 +38,32 @@ quantityCreation <- function(data){
   return(data)
 }
 
-revenueCreation <- function(data){
+revenueCreation <- function(data) {
   data <- data %>%
     mutate(revenue = wtp * quantity)
   return(data)
 }
 
-removeDollarSigns <- function(vector){
+removeDollarSigns <- function(vector) {
   vector <- vector %>%
     mutate(wtp = as.numeric(gsub("\\$", "", wtp)))
   return(vector)
 }
 
-pivotData <- function(data, columns, valueName, columnName){
+pivotData <- function(data, columns, valueName, columnName) {
   data <- data %>%
-    pivot_longer(cols = {{columns}}) %>%
-    rename(!!columnName := 'name',
-           !!valueName := 'value')
+    pivot_longer(cols = {{ columns }}) %>%
+    rename(
+      !!columnName := "name",
+      !!valueName := "value"
+    )
   return(data)
 }
 
-groupByPrice_ThenSum <- function(data, price, varToSum, newName){
+groupByPrice_ThenSum <- function(data, price, varToSum, newName) {
   data <- data %>%
-    group_by( {{ price }} ) %>%
-    summarize( {{ newName }} := sum( {{ varToSum }} ))
+    group_by({{ price }}) %>%
+    summarize({{ newName }} := sum({{ varToSum }}))
   return(data)
 }
 
@@ -73,38 +75,46 @@ expModel <- function(data, x, y) lm(as.formula(paste("log(", y, " + ", logErr, "
 logModel <- function(data, x, y) lm(as.formula(paste(y, "~ log(", x, " + ", logErr, ")")), data = data)
 powModel <- function(data, x, y) lm(as.formula(paste("log(", y, " + ", logErr, ") ~ log(", x, " + ", logErr, ")")), data = data)
 
-sigModel <- function(data, x, y){
+sigModel <- function(data, x, y) {
   output <- NA
-  tryCatch({
-    model <- nls(as.formula(paste(y, " ~ SSlogis(", x, ",Asym, xmid, scal)")), data = data)
-  }, error = function(e) {
-    output <- NA
-    return(output)
-  }) -> output
-  return (output)
+  tryCatch(
+    {
+      model <- nls(as.formula(paste(y, " ~ SSlogis(", x, ",Asym, xmid, scal)")), data = data)
+    },
+    error = function(e) {
+      output <- NA
+      return(output)
+    }
+  ) -> output
+  return(output)
 }
 
-anyModel <- function(data, type, x, y){
+anyModel <- function(data, type, x, y) {
   switch(type,
-         Linear      = do.call("linModel", list(data, x, y)),
-         Exponential = do.call("expModel", list(data, x, y)),
-         Log         = do.call("logModel", list(data, x, y)),
-         Power       = do.call("powModel", list(data, x, y)),
-         Sigmoid     = do.call("sigModel", list(data, x, y)),
-         stop("Invalid type"))
+    Linear      = do.call("linModel", list(data, x, y)),
+    Exponential = do.call("expModel", list(data, x, y)),
+    Log         = do.call("logModel", list(data, x, y)),
+    Power       = do.call("powModel", list(data, x, y)),
+    Sigmoid     = do.call("sigModel", list(data, x, y)),
+    stop("Invalid type")
+  )
 }
 
-demandModel <- function(data, type) return(anyModel(data, type, "wtp", "quantity"))
+demandModel <- function(data, type) {
+  return(anyModel(data, type, "wtp", "quantity"))
+}
 
-modelSummary <- function(data, type, x, y){
-  if(type == "Sigmoid") return(NA)
+modelSummary <- function(data, type, x, y) {
+  if (type == "Sigmoid") {
+    return(NA)
+  }
   return(summary(anyModel(data, type, x, y)))
 }
 
-rSquared <- function(data, type, x, y){
-  if(type == "Sigmoid"){
+rSquared <- function(data, type, x, y) {
+  if (type == "Sigmoid") {
     model <- sigModel(data, x, y)
-    if(class(model) != class(NA)){
+    if (class(model) != class(NA)) {
       predicted <- predict(model)
       residuals <- data[[y]] - predicted
 
@@ -116,7 +126,6 @@ rSquared <- function(data, type, x, y){
       # Calculate pseudo-R-squared (PRE)
       pseudo_R_squared <- 1 - (RSS / TSS)
       rSq <- pseudo_R_squared
-
     } else {
       rSq <- 0
     }
@@ -129,7 +138,7 @@ rSquared <- function(data, type, x, y){
 
 rSquaredDemand <- function(data, type) rSquared(data, type, "wtp", "quantity")
 
-nBestModels <- function(data, x, y, n){
+nBestModels <- function(data, x, y, n) {
   r_squared_values <- c(
     Linear = rSquared(data, "Linear", x, y),
     Exponential = rSquared(data, "Exponential", x, y),
@@ -147,9 +156,9 @@ nBestModels <- function(data, x, y, n){
 
 nBestDemandModels <- function(data, n) nBestModels(data, "wtp", "quantity", n)
 
-linFormulaFancy <- function(data, population, sample = NA){
-  if(class(sample) == class(NA)) sample <- nrow(data)
-  scalar <- population/sample
+linFormulaFancy <- function(data, population, sample = NA) {
+  if (class(sample) == class(NA)) sample <- nrow(data)
+  scalar <- population / sample
 
   int <- conNum_short((coef(demandModel(data, "Linear"))[[1]] * scalar))
   slope <- conNum_short(coef(demandModel(data, "Linear"))[[2]] * scalar)
@@ -161,9 +170,9 @@ linFormulaFancy <- function(data, population, sample = NA){
 bestModel <- function(data, x, y) nBestModels(data, x, y, 1)
 bestDemand <- function(data) nBestDemandModels(data, 1)
 
-expFormulaFancy <- function(data, population, sample = NA){
-  if(class(sample) == class(NA)) sample <- nrow(data)
-  scalar <- population/sample
+expFormulaFancy <- function(data, population, sample = NA) {
+  if (class(sample) == class(NA)) sample <- nrow(data)
+  scalar <- population / sample
 
   int <- conNum_short(exp(coef(demandModel(data, "Exponential"))[[1]]) * scalar)
   slope <- conNum_short(exp(coef(demandModel(data, "Exponential"))[[2]]))
@@ -172,9 +181,9 @@ expFormulaFancy <- function(data, population, sample = NA){
   return(latex_string)
 }
 
-logFormulaFancy <- function(data, population, sample = NA){
-  if(class(sample) == class(NA)) sample <- nrow(data)
-  scalar <- population/sample
+logFormulaFancy <- function(data, population, sample = NA) {
+  if (class(sample) == class(NA)) sample <- nrow(data)
+  scalar <- population / sample
 
   int <- conNum_short(coef(demandModel(data, "Log"))[[1]] * scalar)
   slope <- conNum_short(coef(demandModel(data, "Log"))[[2]] * scalar)
@@ -183,9 +192,9 @@ logFormulaFancy <- function(data, population, sample = NA){
   return(latex_string)
 }
 
-powFormulaFancy <- function(data, population, sample = NA){
-  if(class(sample) == class(NA)) sample <- nrow(data)
-  scalar <- population/sample
+powFormulaFancy <- function(data, population, sample = NA) {
+  if (class(sample) == class(NA)) sample <- nrow(data)
+  scalar <- population / sample
 
   int <- conNum_short(coef(demandModel(data, "Linear"))[[1]] * scalar)
   slope <- conNum_short(exp(coef(demandModel(data, "Linear"))[[2]]))
@@ -194,12 +203,14 @@ powFormulaFancy <- function(data, population, sample = NA){
   return(latex_string)
 }
 
-sigFormulaFancy <- function(data, population, sample = NA){
-  if(class(sample) == class(NA)) sample <- nrow(data)
-  scalar <- population/sample
+sigFormulaFancy <- function(data, population, sample = NA) {
+  if (class(sample) == class(NA)) sample <- nrow(data)
+  scalar <- population / sample
 
   model <- demandModel(data, "Sigmoid")
-  if(class(model) == class(NA)) return(NA)
+  if (class(model) == class(NA)) {
+    return(NA)
+  }
 
   A_Int <- conNum_short(coef(model)[[1]] * scalar)
   B_Mid <- conNum_short(coef(model)[[2]])
@@ -209,26 +220,26 @@ sigFormulaFancy <- function(data, population, sample = NA){
   return(latex_string)
 }
 
-linInterpret <- function(data, population, sample = NA){
-  if(class(sample) == class(NA)) sample <- nrow(data)
-  scalar <- population/sample
+linInterpret <- function(data, population, sample = NA) {
+  if (class(sample) == class(NA)) sample <- nrow(data)
+  scalar <- population / sample
 
   int <- conNum_long(coef(demandModel(data, "Linear"))[[1]] * scalar)
   slope <- conNum_long(coef(demandModel(data, "Linear"))[[2]] * scalar)
 
-  intInterpret<-paste0("* **Intercept** : If the price was $0 we expect to sell **", int, "** unit(s)\n")
-  slopeInterpret <-paste0("* **Slope** : For every $1 dollar increase in price, we loose **", slope, "** sale(s) on average\n")
+  intInterpret <- paste0("* **Intercept** : If the price was $0 we expect to sell **", int, "** unit(s)\n")
+  slopeInterpret <- paste0("* **Slope** : For every $1 dollar increase in price, we loose **", slope, "** sale(s) on average\n")
 
   return(list(intInterpret, slopeInterpret))
 }
 
-expInterpret <- function(data, population, sample = NA){
-  if(class(sample) == class(NA)) sample <- nrow(data)
-  scalar <- round(population/sample,2)
+expInterpret <- function(data, population, sample = NA) {
+  if (class(sample) == class(NA)) sample <- nrow(data)
+  scalar <- round(population / sample, 2)
 
   intercept <- conNum_long(exp(coef(demandModel(data, "Exponential"))[[1]]) * scalar)
   slope <- coef(demandModel(data, "Exponential"))[[2]]
-  slopePercent <- conNum_long((exp(slope)-1) * 100)
+  slopePercent <- conNum_long((exp(slope) - 1) * 100)
 
   intInterpret <- paste0(" * **Intercept**: If the price was $0 we expect to sell **", intercept, "** unit(s)\n")
   slopeInterpret <- paste0(" * **Slope**: For every $1 dollar increase in price, our sales will drop by **", slopePercent, "%**\n")
@@ -236,13 +247,13 @@ expInterpret <- function(data, population, sample = NA){
   return(list(intInterpret, slopeInterpret))
 }
 
-logInterpret <- function(data, population, sample = NA){
-  if(class(sample) == class(NA)) sample <- nrow(data)
-  scalar <- round(population/sample, 2)
+logInterpret <- function(data, population, sample = NA) {
+  if (class(sample) == class(NA)) sample <- nrow(data)
+  scalar <- round(population / sample, 2)
 
   intercept <- conNum_long(coef(demandModel(data, "Log"))[[1]] * scalar)
   slope <- coef(demandModel(data, "Log"))[[2]] * scalar
-  slopeRate <- conNum_short(round(slope/100, 2))
+  slopeRate <- conNum_short(round(slope / 100, 2))
 
   intInterpret <- paste0(" * **Intercept** : If the price was $0 we expect to sell **", intercept, "** unit(s)\n")
   slopeInterpret <- paste0(" * **Slope** : For every 1% increase in price, we loose **", slopeRate, "** sales on average\n")
@@ -250,30 +261,32 @@ logInterpret <- function(data, population, sample = NA){
   return(list(intInterpret, slopeInterpret))
 }
 
-powInterpret <- function(data, population, sample = NA){
-  if(class(sample) == class(NA)) sample <- nrow(data)
-  scalar <- round(population/sample, 2)
+powInterpret <- function(data, population, sample = NA) {
+  if (class(sample) == class(NA)) sample <- nrow(data)
+  scalar <- round(population / sample, 2)
 
   intercept <- conNum_short(exp(coef(demandModel(data, "Power"))[[1]]) * scalar)
   slope <- coef(demandModel(data, "Power"))[[2]]
   slopePercent <- conNum_short(slope * 100)
 
   intInterpret <- paste0(" * **Intercept**: If the price was $0 we expect to sell **", intercept, "** unit(s)\n")
-  slopeInterpret <- paste0(" * **Slope**: For every 1% increase in price, our sales will drop by **", slopePercent,"%** \n")
+  slopeInterpret <- paste0(" * **Slope**: For every 1% increase in price, our sales will drop by **", slopePercent, "%** \n")
 
   return(list(intInterpret, slopeInterpret))
 }
 
-sigInterpret <- function(data, population, sample = NA){
-  if(class(sample) == class(NA)) sample <- nrow(data)
-  scalar <- round(population/sample, 2)
+sigInterpret <- function(data, population, sample = NA) {
+  if (class(sample) == class(NA)) sample <- nrow(data)
+  scalar <- round(population / sample, 2)
 
   model <- demandModel(data, "Sigmoid")
-  if(class(model) == class(NA)) return(NA)
+  if (class(model) == class(NA)) {
+    return(NA)
+  }
 
   A_Int <- conNum_short(coef(model)[[1]] * scalar)
   B_Mid <- conNum_short(round(coef(model)[[2]], 2))
-  #C_scale <- coef(model)[[3]]
+  # C_scale <- coef(model)[[3]]
 
   intInterpret <- paste0(" * **Intercept**: If the price was $0 we expect to sell **", A_Int, "** unit(s)\n")
   midPointInterpret <- paste0(" * **Mid-Point**: The curve will change from decreasing at an increasing rate to a decreasing rate when the price equals **$", B_Mid, "**\n")
@@ -282,11 +295,11 @@ sigInterpret <- function(data, population, sample = NA){
 }
 
 linFormula <- function(data, population, sample = NA) {
-  if(class(sample) == class(NA)) sample <- nrow(data)
-  scalar <- population/sample
+  if (class(sample) == class(NA)) sample <- nrow(data)
+  scalar <- population / sample
 
   int <- round(coef(demandModel(data, "Linear"))[[1]] * scalar, 3)
-  slope <- round(coef(demandModel(data, "Linear"))[[2]] * scalar,3)
+  slope <- round(coef(demandModel(data, "Linear"))[[2]] * scalar, 3)
 
   cat("Linear Demand: \n \n  Quantity = Intercept + (Slope * Price)  \n")
   cat(paste0("  Quantity = ", int, " + (", slope, " * Price)\n"))
@@ -296,14 +309,14 @@ linFormula <- function(data, population, sample = NA) {
 }
 
 expFormula <- function(data, population, sample = NA) {
-  if(class(sample) == class(NA)) sample <- nrow(data)
-  scalar <- round(population/sample,2)
+  if (class(sample) == class(NA)) sample <- nrow(data)
+  scalar <- round(population / sample, 2)
 
   lin_intercept <- round(coef(demandModel(data, "Exponential"))[[1]], 2)
   lin_slope <- round(coef(demandModel(data, "Exponential"))[[2]], 2)
 
   intercept <- round(exp(coef(demandModel(data, "Exponential"))[[1]]) * scalar, 2)
-  slope <- round(exp(coef(demandModel(data, "Exponential"))[[2]]),2)
+  slope <- round(exp(coef(demandModel(data, "Exponential"))[[2]]), 2)
 
   slopePercent <- round((slope - 1) * 100, 3)
 
@@ -318,12 +331,12 @@ expFormula <- function(data, population, sample = NA) {
 }
 
 logFormula <- function(data, population, sample = NA) {
-  if(class(sample) == class(NA)) sample <- nrow(data)
-  scalar <- round(population/sample, 2)
+  if (class(sample) == class(NA)) sample <- nrow(data)
+  scalar <- round(population / sample, 2)
 
   intercept <- round(coef(demandModel(data, "Log"))[[1]] * scalar, 2)
-  slope <- round(coef(demandModel(data, "Log"))[[2]] * scalar,2)
-  slopeRate <- -round(slope/100, 3)
+  slope <- round(coef(demandModel(data, "Log"))[[2]] * scalar, 2)
+  slopeRate <- -round(slope / 100, 3)
 
   lin_intercept <- round(coef(demandModel(data, "Exponential"))[[1]], 2)
 
@@ -336,11 +349,11 @@ logFormula <- function(data, population, sample = NA) {
 }
 
 powFormula <- function(data, population, sample = NA) {
-  if(class(sample) == class(NA)) sample <- nrow(data)
-  scalar <- round(population/sample, 2)
+  if (class(sample) == class(NA)) sample <- nrow(data)
+  scalar <- round(population / sample, 2)
 
   intercept <- round(exp(coef(demandModel(data, "Power"))[[1]]) * scalar, 2)
-  slope <- round(coef(demandModel(data, "Power"))[[2]],2)
+  slope <- round(coef(demandModel(data, "Power"))[[2]], 2)
   slopePercent <- round(slope * 100, 3)
 
   lin_intercept <- round(coef(demandModel(data, "Power"))[[1]], 2)
@@ -352,15 +365,17 @@ powFormula <- function(data, population, sample = NA) {
   cat(paste0("    Quantity = ", intercept, " * exp{", slope, " * log(Price)}"))
 
   cat(paste0("\n \nIntercept: If the price was $0 we expect to sell ", intercept, " unit(s)\n"))
-  cat(paste0("Slope: For every 1% increase in price, our sales will drop by ", -slopePercent,"% \n\n"))
+  cat(paste0("Slope: For every 1% increase in price, our sales will drop by ", -slopePercent, "% \n\n"))
 }
 
-sigFormula <- function(data, population, sample = NA){
-  if(class(sample) == class(NA)) sample <- nrow(data)
-  scalar <- round(population/sample, 2)
+sigFormula <- function(data, population, sample = NA) {
+  if (class(sample) == class(NA)) sample <- nrow(data)
+  scalar <- round(population / sample, 2)
 
   model <- demandModel(data, "Sigmoid")
-  if(class(model) == class(NA)) return(NA)
+  if (class(model) == class(NA)) {
+    return(NA)
+  }
 
   A_Int <- round(coef(model)[[1]] * scalar, 2)
   B_Mid <- round(coef(model)[[2]], 2)
@@ -382,32 +397,37 @@ powFun <- function(data, x, y) function(p) exp(coef(powModel(data, x, y))[[1]] +
 sigFun <- function(data, x, y) {
   sModel <- sigModel(data, x, y)
   fun <- NA
-  if(class(sModel) != class(NA)) fun <- function(p) coef(sModel)[[1]] / (1 + exp(-(p - coef(sModel)[[2]]) / coef(sModel)[[3]]))
+  if (class(sModel) != class(NA)) fun <- function(p) coef(sModel)[[1]] / (1 + exp(-(p - coef(sModel)[[2]]) / coef(sModel)[[3]]))
   return(fun)
 }
 
-modelFun <- function(data, type, x, y){
+modelFun <- function(data, type, x, y) {
   switch(type,
-         Linear      = do.call("linFun", list(data, x, y)),
-         Exponential = do.call("expFun", list(data, x, y)),
-         Log         = do.call("logFun", list(data, x, y)),
-         Power       = do.call("powFun", list(data, x, y)),
-         Sigmoid     = do.call("sigFun", list(data, x, y)),
-         stop("Invalid type"))
+    Linear      = do.call("linFun", list(data, x, y)),
+    Exponential = do.call("expFun", list(data, x, y)),
+    Log         = do.call("logFun", list(data, x, y)),
+    Power       = do.call("powFun", list(data, x, y)),
+    Sigmoid     = do.call("sigFun", list(data, x, y)),
+    stop("Invalid type")
+  )
 }
 
-scaleFunction <- function(data, type, x, y, pop, sample = NA, fun = NA){
-  if(class(fun) == class(NA)) fun <- modelFun(data, type, x, y)
-  if(class(fun) == class(NA)) return(NA)
-  if(class(sample) == class(NA)) sample <- nrow(data)
-  scaler <- (pop/sample)
-  newFun <-  function(input) fun(input) * scaler
+scaleFunction <- function(data, type, x, y, pop, sample = NA, fun = NA) {
+  if (class(fun) == class(NA)) fun <- modelFun(data, type, x, y)
+  if (class(fun) == class(NA)) {
+    return(NA)
+  }
+  if (class(sample) == class(NA)) sample <- nrow(data)
+  scaler <- (pop / sample)
+  newFun <- function(input) fun(input) * scaler
   return(newFun)
 }
 
-fQ <- function(data, type, population, sample = NA){
+fQ <- function(data, type, population, sample = NA) {
   fQ <- scaleFunction(data, type, "wtp", "quantity", population, sample)
-  if(class(fQ) == class(NA)) return(NA)
+  if (class(fQ) == class(NA)) {
+    return(NA)
+  }
   return(fQ)
 }
 
@@ -415,8 +435,8 @@ fR <- function(data, type, pop, sample = NA) function(p) fQ(data, type, pop, sam
 fC <- function(variable, fixed, fQ) fC <- function(p) fixed + variable * fQ(p)
 fPi <- function(fR, fC) fPi <- function(p) fR(p) - fC(p)
 
-nBestProfitPlots <- function(data, n, variable, fixed, pop, sample = NA){
-  top_models<-nBestDemandModels(data, n)
+nBestProfitPlots <- function(data, n, variable, fixed, pop, sample = NA) {
+  top_models <- nBestDemandModels(data, n)
   plot_list <- list()
 
   for (model in top_models) {
@@ -427,22 +447,3 @@ nBestProfitPlots <- function(data, n, variable, fixed, pop, sample = NA){
   final_plot <- do.call(grid.arrange, c(plot_list, ncol = 2))
   return(suppressWarnings(final_plot))
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
