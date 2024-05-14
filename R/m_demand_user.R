@@ -244,21 +244,78 @@ demandPlot <- function(data = NULL, type = NULL, population = NULL, sample = NUL
     annotate("label",
       x = Inf, y = Inf,
       label = paste("R squared:", rSq),
-      vjust = 1, hjust = 1,
+      vjust = 1, hjust = 1, size = 5,
       color = "darkorange", alpha = .8,
       fontface = "bold"
     ) +
     scale_y_continuous(
-      labels = label_number(scale_cut = cut_short_scale()),
+      labels = scales::label_number(scale_cut = scales::cut_short_scale()),
       breaks = scales::extended_breaks(),
       limits = c(0, NA)
     ) +
     theme(plot.title = element_text(face = "bold")) +
     theme_minimal() +
     theme(
-      axis.text = element_text(size = 6),
-      axis.title.x = element_text(size = 8),
-      axis.title.y = element_text(size = 8)
+      axis.text = element_text(size = 10),
+      axis.title.x = element_text(size = 12),
+      axis.title.y = element_text(size = 12)
+    ) +
+    theme(plot.title = element_text(face = "bold"))
+  return(newPlot)
+}
+
+
+demandFunctionPlot <- function(price, data, type, population, sample = NA){
+  fQ <- scaleFunction(data, type, "wtp", "quantity", population, sample)
+  if (class(fQ) == class(NA)) {
+    return(NA)
+  }
+  price <- round(price, 2)
+
+  show_price <- paste0("$", format(round(price, 2), big.mark = ","))
+  show_quantity <- conNum_short(round(fQ(price), 2))
+
+
+  title <- paste0("Quantity when Price is ", show_price)
+
+  newPlot <- ggplot(data = data) +
+    xlim(0, max(data$wtp)) +
+    geom_function(fun = fQ, color = "orange", lwd = 1.8, alpha = .8) +
+    geom_point(x = price, y = fQ(price), color = "darkorange", size = 3) +
+    geom_segment(
+      x = price, y = 0, xend = price, yend = fQ(price),
+      linetype = "dashed", color = "darkorange", lwd = .6
+    ) +
+    geom_segment(
+      x = 0, y = fQ(price), xend = price, yend = fQ(price),
+      linetype = "dashed", color = "orange", lwd = .4
+    ) +
+    labs(title = title, x = "Price ($'s)", y = "Quantity Sold ") +
+    scale_y_continuous(
+      labels = scales::label_number(scale_cut = scales::cut_short_scale()),
+      breaks = scales::extended_breaks(),
+      limits = c(0, NA)
+    ) +
+    theme(plot.title = element_text(face = "bold")) +
+    theme_minimal() +
+    annotate("label",
+             x = Inf, y = Inf,
+             label = paste("Price:", show_price),
+             vjust = 1, hjust = 1, size = 5,
+             color = "darkorange2", alpha = .8,
+             fontface = "bold"
+    ) +
+    annotate("label",
+             x = Inf, y = Inf,
+             label = (paste("Quantity:", show_quantity)),
+             vjust = 2.5, hjust = 1, size = 5,
+             color = "darkorange2", alpha = .8,
+             fontface = "bold"
+    ) +
+    theme(
+      axis.text = element_text(size = 10),
+      axis.title.x = element_text(size = 12),
+      axis.title.y = element_text(size = 12)
     ) +
     theme(plot.title = element_text(face = "bold"))
   return(newPlot)
@@ -283,53 +340,7 @@ demandFunction <- function(price, data, type, population, sample = NA) {
   }
 
   price <- round(price, 2)
-
-  show_price <- paste0("$", format(round(price, 2), big.mark = ","))
-  show_quantity <- conNum_short(round(fQ(price), 2))
-
-
-  title <- paste0("Quantity when Price is ", show_price)
-
-  newPlot <- ggplot(data = data) +
-    xlim(0, max(data$wtp)) +
-    geom_function(fun = fQ, color = "orange", lwd = 1.8, alpha = .8) +
-    geom_point(x = price, y = fQ(price), color = "darkorange", size = 3) +
-    geom_segment(
-      x = price, y = 0, xend = price, yend = fQ(price),
-      linetype = "dashed", color = "darkorange", lwd = .6
-    ) +
-    geom_segment(
-      x = 0, y = fQ(price), xend = price, yend = fQ(price),
-      linetype = "dashed", color = "orange", lwd = .4
-    ) +
-    labs(title = title, x = "Price ($'s)", y = "Quantity Sold ") +
-    scale_y_continuous(
-      labels = label_number(scale_cut = cut_short_scale()),
-      breaks = scales::extended_breaks(),
-      limits = c(0, NA)
-    ) +
-    theme(plot.title = element_text(face = "bold")) +
-    theme_minimal() +
-    annotate("label",
-      x = Inf, y = Inf,
-      label = paste("Price:", show_price),
-      vjust = 1, hjust = 1, size = 4,
-      color = "darkorange2", alpha = .8,
-      fontface = "bold"
-    ) +
-    annotate("label",
-      x = Inf, y = Inf,
-      label = (paste("Quantity:", show_quantity)),
-      vjust = 2.5, hjust = 1, size = 4,
-      color = "darkorange2", alpha = .8,
-      fontface = "bold"
-    ) +
-    theme(
-      axis.text = element_text(size = 6),
-      axis.title.x = element_text(size = 8),
-      axis.title.y = element_text(size = 8)
-    ) +
-    theme(plot.title = element_text(face = "bold"))
+  newPlot <- demandFunctionPlot(price, data, type, population, sample)
 
   suppressWarnings(print(newPlot))
   return(fQ(price))

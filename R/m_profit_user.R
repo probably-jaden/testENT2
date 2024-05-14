@@ -39,25 +39,25 @@ profitPlot <- function(data, type, variable, fixed, population, sampleSize = NA,
     annotate("label",
       x = Inf, y = Inf,
       label = paste("Price:", show_Price),
-      vjust = 1, hjust = 1, size = 3,
+      vjust = 1, hjust = 1, size = 4,
       color = "darkgreen", alpha = .8,
       fontface = "bold"
     ) +
     annotate("label",
       x = Inf, y = Inf,
       label = (paste("Profit:", show_Profit)),
-      vjust = 2.5, hjust = 1, size = 3,
+      vjust = 2.5, hjust = 1, size = 4,
       color = "darkgreen", alpha = .8,
       fontface = "bold"
     ) +
     theme(
-      axis.text = element_text(size = 6),
-      axis.title.x = element_text(size = 8),
-      axis.title.y = element_text(size = 8)
+      axis.text = element_text(size = 10),
+      axis.title.x = element_text(size = 12),
+      axis.title.y = element_text(size =12)
     ) +
     theme_minimal() +
     scale_y_continuous(
-      labels = label_number(scale_cut = cut_short_scale()),
+      labels = scales::label_number(scale_cut = scales::cut_short_scale()),
       breaks = scales::extended_breaks(),
       limits = c(0, yCap)
     ) +
@@ -97,7 +97,7 @@ profitFunction <- function(price, data, type, variable, fixed, population, sampl
     ) +
     labs(title = title, x = "Price ($'s)", y = "Profit ($'s) ") +
     scale_y_continuous(
-      labels = label_number(scale_cut = cut_short_scale()),
+      labels = scales::label_number(scale_cut = scales::cut_short_scale()),
       breaks = scales::extended_breaks(),
       limits = c(0, NA)
     ) +
@@ -190,7 +190,7 @@ profitRevFunction <- function(price, data, type, variable, fixed, population, sa
     geom_point(x = price, y = fPi(price), color = "green4", size = 3) +
     geom_point(x = price, y = fR(price), color = "deepskyblue3", size = 3) +
     scale_y_continuous(
-      labels = label_number(scale_cut = cut_short_scale()),
+      labels = scales::label_number(scale_cut = scales::cut_short_scale()),
       breaks = scales::extended_breaks(),
       limits = c(0, yCap)
     ) +

@@ -52,24 +52,29 @@ revenuePlot <- function(data, type, population, sample = NA) {
     annotate("label",
       x = Inf, y = Inf,
       label = paste("Price:", show_Price),
-      vjust = 1, hjust = 1, size = 3,
+      vjust = 1, hjust = 1, size = 4,
       color = "deepskyblue4", alpha = .8,
       fontface = "bold"
     ) +
     annotate("label",
       x = Inf, y = Inf,
       label = (paste("Revenue:", show_Rev)),
-      vjust = 2.5, hjust = 1, size = 3,
+      vjust = 2.5, hjust = 1, size = 4,
       color = "deepskyblue4", alpha = .8,
       fontface = "bold"
     ) +
     scale_y_continuous(
-      labels = label_number(scale_cut = cut_short_scale()),
+      labels = scales::label_number(scale_cut = scales::cut_short_scale()),
       breaks = scales::extended_breaks(),
       limits = c(0, NA)
     ) +
     theme_minimal() +
-    theme(plot.title = element_text(face = "bold"))
+    theme(plot.title = element_text(face = "bold"))+
+    theme(
+      axis.text = element_text(size = 10),
+      axis.title.x = element_text(size = 12),
+      axis.title.y = element_text(size = 12)
+    )
 
   return(newPlot)
 }
@@ -103,7 +108,7 @@ revenueFunction <- function(price, data, type, population, sample = NA) {
     ) +
     labs(title = title, x = "Price ($'s)", y = "Revenue ($'s) ") +
     scale_y_continuous(
-      labels = label_number(scale_cut = cut_short_scale()),
+      labels = scales::label_number(scale_cut = scales::cut_short_scale()),
       breaks = scales::extended_breaks(),
       limits = c(0, NA)
     ) +
