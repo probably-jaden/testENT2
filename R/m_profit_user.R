@@ -67,6 +67,66 @@ profitPlot <- function(data, type, variable, fixed, population, sampleSize = NA,
   return(suppressWarnings(plot))
 }
 
+profitFunctionPlot <- function(price, data, type, variable, fixed, population, sample = NA){
+    fQ <- fQ(data, type, population, sample)
+    if (class(fQ) == class(NA)) {
+      return(NA)
+    }
+    fR <- fR(data, type, population, sample)
+    fC <- fC(variable, fixed, fQ)
+    fPi <- function(p) fR(p) - fC(p)
+
+    price <- round(price, 2)
+
+    show_price <- paste0("$", format(round(price, 2), big.mark = ","))
+    show_profit <- paste0("$", conNum_short(round(fPi(price), 2)))
+
+    title <- paste0("Profit when Price is ", show_price)
+
+    newPlot <- ggplot(data = data) +
+      xlim(0, max(data$wtp)) +
+      geom_function(fun = fPi, color = "green3", lwd = 1.8, alpha = .8) +
+      geom_point(x = price, y = fPi(price), color = "green4", size = 3) +
+      geom_segment(
+        x = price, y = 0, xend = price, yend = fPi(price),
+        linetype = "dashed", color = "green4", lwd = .6
+      ) +
+      geom_segment(
+        x = 0, y = fPi(price), xend = price, yend = fPi(price),
+        linetype = "dashed", color = "green3", lwd = .4
+      ) +
+      labs(title = title, x = "Price ($'s)", y = "Profit ($'s) ") +
+      scale_y_continuous(
+        labels = scales::label_number(scale_cut = scales::cut_short_scale()),
+        breaks = scales::extended_breaks(),
+        limits = c(0, NA)
+      ) +
+      theme(plot.title = element_text(face = "bold")) +
+      theme_minimal() +
+      annotate("label",
+               x = Inf, y = Inf,
+               label = paste("Price:", show_price),
+               vjust = 1, hjust = 1, size = 4,
+               color = "darkgreen", alpha = .8,
+               fontface = "bold"
+      ) +
+      annotate("label",
+               x = Inf, y = Inf,
+               label = (paste("Profit:", show_profit)),
+               vjust = 2.5, hjust = 1, size = 4,
+               color = "darkgreen", alpha = .8,
+               fontface = "bold"
+      ) +
+      theme(
+        axis.text = element_text(size = 6),
+        axis.title.x = element_text(size = 8),
+        axis.title.y = element_text(size = 8)
+      ) +
+      theme(plot.title = element_text(face = "bold"))
+
+  return(suppressWarnings(newPlot))
+}
+
 profitFunction <- function(price, data, type, variable, fixed, population, sample = NA) {
   fQ <- fQ(data, type, population, sample)
   if (class(fQ) == class(NA)) {
@@ -76,53 +136,7 @@ profitFunction <- function(price, data, type, variable, fixed, population, sampl
   fC <- fC(variable, fixed, fQ)
   fPi <- function(p) fR(p) - fC(p)
 
-  price <- round(price, 2)
-
-  show_price <- paste0("$", format(round(price, 2), big.mark = ","))
-  show_profit <- paste0("$", conNum_short(round(fPi(price), 2)))
-
-  title <- paste0("Profit when Price is ", show_price)
-
-  newPlot <- ggplot(data = data) +
-    xlim(0, max(data$wtp)) +
-    geom_function(fun = fPi, color = "green3", lwd = 1.8, alpha = .8) +
-    geom_point(x = price, y = fPi(price), color = "green4", size = 3) +
-    geom_segment(
-      x = price, y = 0, xend = price, yend = fPi(price),
-      linetype = "dashed", color = "green4", lwd = .6
-    ) +
-    geom_segment(
-      x = 0, y = fPi(price), xend = price, yend = fPi(price),
-      linetype = "dashed", color = "green3", lwd = .4
-    ) +
-    labs(title = title, x = "Price ($'s)", y = "Profit ($'s) ") +
-    scale_y_continuous(
-      labels = scales::label_number(scale_cut = scales::cut_short_scale()),
-      breaks = scales::extended_breaks(),
-      limits = c(0, NA)
-    ) +
-    theme(plot.title = element_text(face = "bold")) +
-    theme_minimal() +
-    annotate("label",
-      x = Inf, y = Inf,
-      label = paste("Price:", show_price),
-      vjust = 1, hjust = 1, size = 4,
-      color = "darkgreen", alpha = .8,
-      fontface = "bold"
-    ) +
-    annotate("label",
-      x = Inf, y = Inf,
-      label = (paste("Profit:", show_profit)),
-      vjust = 2.5, hjust = 1, size = 4,
-      color = "darkgreen", alpha = .8,
-      fontface = "bold"
-    ) +
-    theme(
-      axis.text = element_text(size = 6),
-      axis.title.x = element_text(size = 8),
-      axis.title.y = element_text(size = 8)
-    ) +
-    theme(plot.title = element_text(face = "bold"))
+  newPlot <- profitFunctionPlot(price, data, type, variable, fixed, population, sample)
 
   suppressWarnings(print(newPlot))
   return(fPi(price))
@@ -144,6 +158,7 @@ profitOptimize <- function(data, type, variable, fixed, population, sample = NA)
 
   return(list(opt_Profit, opt_Price))
 }
+
 
 profitRevFunction <- function(price, data, type, variable, fixed, population, sample = NA, yCap = 0) {
   fQ <- fQ(data, type, population, sample)
