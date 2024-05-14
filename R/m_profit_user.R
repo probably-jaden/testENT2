@@ -13,7 +13,7 @@ profitPlot <- function(data, type, variable, fixed, population, sampleSize = NA,
   fC <- fC(variable, fixed, fQ)
   fPi <- fPi(fR, fC)
 
-  title <- paste("Profit:", type)
+  title <- paste("Optimized Profit")
 
   opt_Profit <- optimize(fPi, lower = 0, upper = max(data$wtp), maximum = TRUE)[[2]]
   opt_Price <- optimize(fPi, lower = 0, upper = max(data$wtp), maximum = TRUE)[[1]]
@@ -105,22 +105,15 @@ profitFunctionPlot <- function(price, data, type, variable, fixed, population, s
       theme_minimal() +
       annotate("label",
                x = Inf, y = Inf,
-               label = paste("Price:", show_price),
-               vjust = 1, hjust = 1, size = 4,
-               color = "darkgreen", alpha = .8,
-               fontface = "bold"
-      ) +
-      annotate("label",
-               x = Inf, y = Inf,
                label = (paste("Profit:", show_profit)),
-               vjust = 2.5, hjust = 1, size = 4,
+               vjust = 2.5, hjust = 1, size = 6,
                color = "darkgreen", alpha = .8,
                fontface = "bold"
       ) +
       theme(
-        axis.text = element_text(size = 6),
-        axis.title.x = element_text(size = 8),
-        axis.title.y = element_text(size = 8)
+        axis.text = element_text(size = 10),
+        axis.title.x = element_text(size = 12),
+        axis.title.y = element_text(size = 12)
       ) +
       theme(plot.title = element_text(face = "bold"))
 

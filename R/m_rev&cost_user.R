@@ -21,7 +21,7 @@ revenueScatterPlot <- function(data) {
 }
 
 revenuePlot <- function(data, type, population, sample = NA) {
-  title <- paste("Revenue:", type)
+  title <- paste("Revenue")
 
   fQ <- fQ(data, type, population, sample)
   if (class(fQ) == class(NA)) {
@@ -29,11 +29,11 @@ revenuePlot <- function(data, type, population, sample = NA) {
   }
   fR <- fR(data, type, population, sample)
 
-  opt_Rev <- optimize(fR, lower = 0, upper = max(data$wtp), maximum = TRUE)[[2]]
-  opt_Price <- optimize(fR, lower = 0, upper = max(data$wtp), maximum = TRUE)[[1]]
+  #opt_Rev <- optimize(fR, lower = 0, upper = max(data$wtp), maximum = TRUE)[[2]]
+  #opt_Price <- optimize(fR, lower = 0, upper = max(data$wtp), maximum = TRUE)[[1]]
 
-  show_Rev <- paste0("$", conNum_short(round(opt_Rev, 2)))
-  show_Price <- paste0("$", conNum_short(round(opt_Price, 2)))
+  #show_Rev <- paste0("$", conNum_short(round(opt_Rev, 2)))
+  #show_Price <- paste0("$", conNum_short(round(opt_Price, 2)))
 
   if (class(sample) == class(NA)) sample <- nrow(data)
   scalar <- population / sample
@@ -42,10 +42,10 @@ revenuePlot <- function(data, type, population, sample = NA) {
     mutate(scaled_revenue = quantity * scalar * wtp)
 
   newPlot <- ggplot(data = newTibble) +
-    geom_segment(
-      x = opt_Price, y = 1, xend = opt_Price, yend = opt_Rev,
-      linetype = "dashed", color = "deepskyblue2", lwd = .3
-    ) +
+    #geom_segment(
+    #  x = opt_Price, y = 1, xend = opt_Price, yend = opt_Rev,
+    #  linetype = "dashed", color = "deepskyblue2", lwd = .3
+    #) +
     geom_function(fun = fR, color = "deepskyblue3", lwd = 1.3, alpha = .5) +
     geom_point(mapping = aes(x = wtp, y = scaled_revenue), color = "deepskyblue3", alpha = .7) +
     labs(title = title, x = "Price ($'s)", y = "Revenue ($'s)") +
@@ -56,22 +56,22 @@ revenuePlot <- function(data, type, population, sample = NA) {
       color = "deepskyblue4", alpha = .8,
       fontface = "bold"
     ) +
-    annotate("label",
-      x = Inf, y = Inf,
-      label = (paste("Revenue:", show_Rev)),
-      vjust = 2.5, hjust = 1, size = 4,
-      color = "deepskyblue4", alpha = .8,
-      fontface = "bold"
-    ) +
-    scale_y_continuous(
-      labels = scales::label_number(scale_cut = scales::cut_short_scale()),
-      breaks = scales::extended_breaks(),
-      limits = c(0, NA)
-    ) +
+    #annotate("label",
+    #  x = Inf, y = Inf,
+    #  label = (paste("Revenue:", show_Rev)),
+    #  vjust = 2.5, hjust = 1, size = 4,
+    #  color = "deepskyblue4", alpha = .8,
+    #  fontface = "bold"
+    #) +
+    #scale_y_continuous(
+    #  labels = scales::label_number(scale_cut = scales::cut_short_scale()),
+    #  breaks = scales::extended_breaks(),
+    #  limits = c(0, NA)
+    #) +
     theme_minimal() +
     theme(plot.title = element_text(face = "bold"))+
     theme(
-      axis.text = element_text(size = 10),
+      axis.text = element_text(size = 11),
       axis.title.x = element_text(size = 12),
       axis.title.y = element_text(size = 12)
     )
