@@ -49,13 +49,13 @@ revenuePlot <- function(data, type, population, sample = NA) {
     geom_function(fun = fR, color = "deepskyblue3", lwd = 1.3, alpha = .5) +
     geom_point(mapping = aes(x = wtp, y = scaled_revenue), color = "deepskyblue3", alpha = .7) +
     labs(title = title, x = "Price ($'s)", y = "Revenue ($'s)") +
-    annotate("label",
-      x = Inf, y = Inf,
-      label = paste("Price:", show_Price),
-      vjust = 1, hjust = 1, size = 4,
-      color = "deepskyblue4", alpha = .8,
-      fontface = "bold"
-    ) +
+    #annotate("label",
+    #  x = Inf, y = Inf,
+    #  label = paste("Price:", show_Price),
+    #  vjust = 1, hjust = 1, size = 4,
+    #  color = "deepskyblue4", alpha = .8,
+    #  fontface = "bold"
+    #) +
     #annotate("label",
     #  x = Inf, y = Inf,
     #  label = (paste("Revenue:", show_Rev)),
@@ -63,11 +63,11 @@ revenuePlot <- function(data, type, population, sample = NA) {
     #  color = "deepskyblue4", alpha = .8,
     #  fontface = "bold"
     #) +
-    #scale_y_continuous(
-    #  labels = scales::label_number(scale_cut = scales::cut_short_scale()),
-    #  breaks = scales::extended_breaks(),
-    #  limits = c(0, NA)
-    #) +
+    scale_y_continuous(
+      labels = scales::label_number(scale_cut = scales::cut_short_scale()),
+      breaks = scales::extended_breaks(),
+      limits = c(0, NA)
+    ) +
     theme_minimal() +
     theme(plot.title = element_text(face = "bold"))+
     theme(

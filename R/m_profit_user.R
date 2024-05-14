@@ -51,7 +51,7 @@ profitPlot <- function(data, type, variable, fixed, population, sampleSize = NA,
       fontface = "bold"
     ) +
     theme(
-      axis.text = element_text(size = 10),
+      axis.text = element_text(size = 11),
       axis.title.x = element_text(size = 12),
       axis.title.y = element_text(size =12)
     ) +
@@ -106,12 +106,12 @@ profitFunctionPlot <- function(price, data, type, variable, fixed, population, s
       annotate("label",
                x = Inf, y = Inf,
                label = (paste("Profit:", show_profit)),
-               vjust = 2.5, hjust = 1, size = 6,
+               vjust = 1, hjust = 1, size = 5,
                color = "darkgreen", alpha = .8,
                fontface = "bold"
       ) +
       theme(
-        axis.text = element_text(size = 10),
+        axis.text = element_text(size = 11),
         axis.title.x = element_text(size = 12),
         axis.title.y = element_text(size = 12)
       ) +
