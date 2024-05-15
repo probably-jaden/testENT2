@@ -19,9 +19,19 @@ whichColumns <- function(which, data) {
 }
 
 quantityCreation_duo <- function(data, col1 = NULL, col2 = NULL) {
-  col1_str <- deparse(substitute(col1))
-  col2_str <- deparse(substitute(col2))
-
+  # FIXME: not getting the non-string column names in at all
+  if(class(col1) == "name" && class(col2) == "name"){
+    col1_str <- deparse(substitute(col1))
+    col2_str <- deparse(substitute(col2))
+  } else if (class(col1) == "character" && class(col2) == "character"){
+    col1_str <- col1
+    col2_str <- col2
+    col1 <- sym(col1)
+    col2 <- sym(col2)
+  } else{
+    stop("Invalid input")
+  }
+  paste("made it to line 38")
   Q1 <- paste0("Q_", col1_str)
   Q2 <- paste0("Q_", col2_str)
   P1 <- paste0("wtp_", col1_str)
@@ -43,6 +53,7 @@ quantityCreation_duo <- function(data, col1 = NULL, col2 = NULL) {
 
   return(data)
 }
+
 
 linModel_duo <- function(data, x1, x2, y) lm(as.formula(paste(y, "~", x1, "+", x2)), data = data)
 expModel_duo <- function(data, x1, x2, y) lm(as.formula(paste("log(", y, " + ", logErr, ") ~", x1, "+", x2)), data = data)
