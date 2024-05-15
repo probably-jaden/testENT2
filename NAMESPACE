@@ -29,6 +29,7 @@ exportPattern("^[[:alpha:]]+")
  importFrom (dplyr, summarize)
  importFrom (dplyr, across)
  importFrom (dplyr, n)
+ importFrom (dplyr, ungroup)
 
  importFrom (stats, coef)
  importFrom (stats, lm)
