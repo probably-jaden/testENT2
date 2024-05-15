@@ -85,7 +85,7 @@ demandPlotDuo <- function(competitor_price, data, type, first_or_second, populat
     annotate("label",
       x = Inf, y = Inf,
       label = paste("R squared:", rSq),
-      vjust = 1, hjust = 1,
+      vjust = 1, hjust = 1, size = 5,
       color = "darkorange", alpha = .8,
       fontface = "bold"
     ) +
@@ -97,9 +97,9 @@ demandPlotDuo <- function(competitor_price, data, type, first_or_second, populat
     theme(plot.title = element_text(face = "bold")) +
     theme_minimal() +
     theme(
-      axis.text = element_text(size = 6),
-      axis.title.x = element_text(size = 8),
-      axis.title.y = element_text(size = 8)
+      axis.text = element_text(size = 11),
+      axis.title.x = element_text(size = 12),
+      axis.title.y = element_text(size = 12)
     ) +
     theme(plot.title = element_text(face = "bold"))
   return(suppressWarnings(newPlot))
