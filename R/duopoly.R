@@ -76,18 +76,18 @@ sigModel_duo <- function(data, x1, x2, y) {
 
 anyModel_duo <- function(data, type, x1, x2, y) {
   switch(type,
-    Linear      = do.call("linModel_multi", list(data, x1, x2, y)),
-    Exponential = do.call("expModel_multi", list(data, x1, x2, y)),
-    Log         = do.call("logModel_multi", list(data, x1, x2, y)),
-    Power       = do.call("powModel_multi", list(data, x1, x2, y)),
-    Sigmoid     = do.call("sigModel_multi", list(data, x1, x2, y)),
+    Linear      = do.call("linModel_duo", list(data, x1, x2, y)),
+    Exponential = do.call("expModel_duo", list(data, x1, x2, y)),
+    Log         = do.call("logModel_duo", list(data, x1, x2, y)),
+    Power       = do.call("powModel_duo", list(data, x1, x2, y)),
+    Sigmoid     = do.call("sigModel_duo", list(data, x1, x2, y)),
     stop("Invalid type")
   )
 }
 
 
 demandModel_duo <- function(data, type) {
-  return(anyModel_multi(data, type, "wtp", "quantity"))
+  return(anyModel_duo(data, type, "wtp", "quantity"))
 }
 
 linFun_duo <- function(data, x1, x2, y) {
@@ -114,7 +114,7 @@ logFun_duo <- function(data, x1, x2, y) {
   return(fun)
 }
 
-powFun_multi <- function(data, x1, x2, y) {
+powFun_duo <- function(data, x1, x2, y) {
   model <- powModel_duo(data, x1, x2, y)
   fun <- function(param1, param2) {
     exp(coef(model)[[1]] + (coef(model)[[2]] * log(param1)) + (coef(model)[[3]] * log(param2)))
