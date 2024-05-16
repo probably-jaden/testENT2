@@ -55,6 +55,57 @@ demandPlot3D <- function(data, type, first_or_second, population, sample) {
   return(plot3D) #list(plot3D, model_summary))
 }
 
+
+
+profitPlotDuo <- function(price1, price2, data, type, first_or_second, var, fix, population, sample = NA){
+  cols <- whichColumns(first_or_second, data)
+  fPim_this <- function(p) fPi_m(data, type, cols[[1]], cols[[2]], cols[[3]], var, fix, population, sample)(p, price2)
+
+  if (class(fPim_this) == class(NA)) {
+    return()
+  }
+
+  show_price <- paste0(price2)
+  show_profit <- paste0("$", conNum_short(round(fPim_this(price1), 2)))
+
+  title <- paste0("Profit when Competitor's price is $", show_price)
+
+  newPlot <- ggplot(data = data) +
+    geom_function(
+      fun = fPim_this,
+      color = "green3", lwd = 1.5, alpha = .8
+    ) +
+    geom_point(x = price1, y = fPim_this(price1), color = "green4", size = 3) +
+    geom_segment( x = price1, y = 0, xend = price1, yend = fPim_this(price1), linetype = "dashed", color = "green4", lwd = .6) +
+    geom_segment(x = 0, y = fPim_this(price1), xend = price1, yend = fPim_this(price1), linetype = "dashed", color = "green3", lwd = .4) +
+    labs(title = title, x = "Price ($'s)", y = "Profit ($'s)") +
+    annotate("label",
+             x = Inf, y = Inf,
+             label = paste("Profit:", show_profit),
+             vjust = 1, hjust = 1, size = 5,
+             color = "darkgreen", alpha = .8,
+             fontface = "bold"
+    ) +
+    scale_y_continuous(
+      labels = label_number(scale_cut = cut_short_scale()),
+      breaks = scales::extended_breaks(),
+      limits = c(0, NA)
+    ) +
+    xlim(c(min(data[[cols[[1]]]]), max(data[[cols[[1]]]])))+
+    theme(plot.title = element_text(face = "bold")) +
+    theme_minimal() +
+    theme(
+      axis.text = element_text(size = 11),
+      axis.title.x = element_text(size = 12),
+      axis.title.y = element_text(size = 12)
+    ) +
+    theme(plot.title = element_text(face = "bold"))
+  return(suppressWarnings(newPlot))
+}
+
+
+
+
 demandPlotDuo <- function(competitor_price, data, type, first_or_second, population, sample = NA) {
   cols <- whichColumns(first_or_second, data)
   title <- paste("Demand:", type)
@@ -200,6 +251,8 @@ profitPlot3D <- function(data, type, first_or_second, var, fix, population, samp
     )
   return(plot3D)
 }
+
+
 
 
 competitionSolve <- function(data, type, first_or_second, variable1, fixed1, variable2, fixed2, population, sample = NA) {
