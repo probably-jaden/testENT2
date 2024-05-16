@@ -1,5 +1,19 @@
 roundLog <- function(x, base = 10) {
-  base^round(log(x, base = base))
+  flr <- 10^floor(log(x, base = 10))
+  clg <- 10^ceiling(log(x, base = 10))
+  mid <- flr * 5
+
+  dif_mid <- abs(x - mid)
+  dif_flr <- abs(x - flr)
+  dif_clg <- abs(x - clg)
+
+  if(dif_mid < dif_flr & dif_mid < dif_clg){
+    return(mid)
+  } else if(dif_flr < dif_clg){
+    return(flr)
+  } else {
+    return(clg)
+  }
 }
 
 conNum_short <- function(number) {
