@@ -21,6 +21,12 @@ competitionQuantity <- function(price1, price2, data, type, first_or_second, pop
   cat(paste0("Quantity Sold: ", format(round(quantity, 2), big.mark = ","), "\n"))
 }
 
+demandSummaryDuo <- function(data, type, first_or_second) {
+  cols <- whichColumns(first_or_second, data)
+  model_summary <- summary(anyModel_duo(data, type, cols[[1]], cols[[2]], cols[[3]]))
+  return(model_summary)
+}
+
 
 demandPlot3D <- function(data, type, first_or_second, population, sample) {
   cols <- whichColumns(first_or_second, data)
