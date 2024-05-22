@@ -297,7 +297,7 @@ profitLine <- function(data, type, first_or_second, var, fix, population, sample
     return(profit1_P2)
   }
 
-  this_optLine <- profitOptimizeDuo(data, type, first_or_second, var, fix, population, sample)
+  this_optLine <- optLineFun(data, type, first_or_second, var, fix, population, sample)
   y_points <- seq(min(data[[cols[[2]]]]), max(data[[cols[[2]]]]), length.out = nrow(data))
 
   lineData <- lapply(y_points, function(value) {
@@ -428,6 +428,7 @@ nash3D <- function(data, type, var1, fix1, var2, fix2, population, sample) {
 
 
 nash2D <- function(data, type, var1, fix1, var2, fix2, population, sample){
+  cols <- whichColumns(1, data)
   lineDF1 <- profitLine(data, type, 1, var1, fix1, population, sample) %>%
     rename(profit_line1 = profit_line,
            x1 = x,
@@ -467,3 +468,9 @@ nash2D <- function(data, type, var1, fix1, var2, fix2, population, sample){
 
   return(plot)
 }
+
+#cp<-read_csv("CupcakesTest.csv")
+
+#cpClean <- quantityCreation_duo(cp, "cupcakes", "donuts")
+
+#nash2D(cpClean, "Linear", 1, 1, 1, 1,1000, 1)
