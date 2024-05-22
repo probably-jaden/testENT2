@@ -282,30 +282,36 @@ competitionSolve <- function(data, type, first_or_second, variable1, fixed1, var
   competitionProfit(opt_price2, opt_price1, data, type, 2, variable2, fixed2, population, sample = NA)
 }
 
-profitOptLine <- function(data, type, first_or_second, var, fix, population, sample) {
-  cols <- whichColumns(first_or_second, data)
 
-  profitOptimizeDuo <- function(data, type, first_or_second, var, fix, population, sample) {
-    cols <- whichColumns(first_or_second, data)
-    returnFunction <- function(x2_price) {
-      optFunction <- function(x1_price) {
-        OptFun <- fPi_m(data, type, cols[[1]], cols[[2]], cols[[3]], var, fix, population, sample)(x1_price, x2_price)
-        return(OptFun)
+profitLine <- function(data, type, first_or_second, var, fix, population, sample){
+  cols <- whichColumns(first_or_second, data)
+  optLineFun <- function(data, type, first_or_second, var, fix, population, sample) {
+    profit1_P2 <- function(x2_price) {
+      profit1_P1 <- function(x1_price) {
+        profitFun <- fPi_m(data, type, cols[[1]], cols[[2]], cols[[3]], var, fix, population, sample)(x1_price, x2_price)
+        return(profitFun)
       }
-      opt <- optimize(optFunction, lower = 0, upper = max(data[[cols[[1]]]]), maximum = TRUE)
+      opt <- optimize(profit1_P1, lower = 0, upper = max(data[[cols[[1]]]]), maximum = TRUE)
       return(list(opt[[1]], opt[[2]]))
     }
-    return(returnFunction)
+    return(profit1_P2)
   }
-  lineGenFun <- profitOptimizeDuo(data, type, first_or_second, var, fix, population, sample)
 
-  x2_points <- seq(min(data[[cols[[2]]]]), max(data[[cols[[2]]]]), length.out = nrow(data))
-  lineData <- lapply(x2_points, function(value) {
-    output <- lineGenFun(value)
-    list(x2_line = value, x1_line = output[[1]], profit_line = output[[2]])
+  this_optLine <- profitOptimizeDuo(data, type, first_or_second, var, fix, population, sample)
+  y_points <- seq(min(data[[cols[[2]]]]), max(data[[cols[[2]]]]), length.out = nrow(data))
+
+  lineData <- lapply(y_points, function(value) {
+    output <- this_optLine(value)
+    list(y = value, x = output[[1]], profit_line= output[[2]])
   })
 
-  lineData_df <- data.frame(do.call(rbind, lineData)) %>%
+  lineData_df <- data.frame(do.call(rbind, lineData))
+  return(lineData_df)
+}
+
+profitOptLine <- function(data, type, first_or_second, var, fix, population, sample) {
+  cols <- whichColumns(first_or_second, data)
+  lineDF <- profitLine(data, type, first_or_second, var, fix, population, sample) %>%
     mutate(line_color = ifelse(profit_line > 0, "green", "red"))
 
   title_str <- paste("Profit Optimization Line for", cols[[1]])
@@ -325,7 +331,7 @@ profitOptLine <- function(data, type, first_or_second, var, fix, population, sam
       name = "optimal profit", showlegend = TRUE, line = list(color = "green")
     ) %>%
     plotly::add_trace(
-      data = lineData_df, x = ~x1_line, y = ~x2_line, z = ~profit_line, type = "scatter3d", mode = "lines",
+      data = lineDF, x = ~x, y = ~y, z = ~profit_line, type = "scatter3d", mode = "lines",
       showlegend = FALSE, opacity = 1, line = list(width = 8, color = ~line_color, reverscale = FALSE)
     ) %>%
     plotly::add_surface(
@@ -346,42 +352,23 @@ profitOptLine <- function(data, type, first_or_second, var, fix, population, sam
   return(suppressWarnings(plot3D))
 }
 
-nash <- function(data, type, var1, fix1, var2, fix2, population, sample) {
+
+
+nash3D <- function(data, type, var1, fix1, var2, fix2, population, sample) {
   cols1 <- whichColumns(1, data)
   cols2 <- whichColumns(2, data)
 
-  profitOptimizeMulti <- function(data, type, first_or_second, var, fix, population, sample) {
-    cols <- whichColumns(first_or_second, data)
+  lineData1 <- profitLine(data, type, 1, var1, fix1, population, sample) %>%
+    rename(profit_line1 = profit_line,
+           x1 = x,
+           y1 = y)
 
-    returnFunction <- function(x2_price) {
-      optFunction <- function(x1_price) {
-        OptFun <- fPi_m(data, type, cols[[1]], cols[[2]], cols[[3]], var, fix, population, sample)(x1_price, x2_price)
-        return(OptFun)
-      }
-      opt <- optimize(optFunction, lower = 0, upper = max(data[[cols[[1]]]]), maximum = TRUE)
-      return(list(opt[[1]], opt[[2]]))
-    }
-    return(returnFunction)
-  }
-  lineGenFun1 <- profitOptimizeMulti(data, type, 1, var1, fix1, population, sample)
-  lineGenFun2 <- profitOptimizeMulti(data, type, 2, var2, fix2, population, sample)
+  lineData2 <- profitLine(data, type, 2, var2, fix2, population, sample) %>%
+    rename(profit_line2 = profit_line,
+           y2 = x,
+           x2 = y)
 
-  x2_points <- seq(min(data[[cols1[[2]]]]), max(data[[cols1[[2]]]]), length.out = nrow(data))
-  lineData1 <- lapply(x2_points, function(value) {
-    output <- lineGenFun1(value)
-    list(x2_line1 = value, x1_line1 = output[[1]], profit_line1 = output[[2]])
-  })
-
-  x1_points <- seq(min(data[[cols2[[2]]]]), max(data[[cols2[[2]]]]), length.out = nrow(data))
-  lineData2 <- lapply(x1_points, function(value) {
-    output <- lineGenFun2(value)
-    list(x1_line2 = value, x2_line2 = output[[1]], profit_line2 = output[[2]])
-  })
-
-  lineData_df1 <- data.frame(do.call(rbind, lineData1))
-  lineData_df2 <- data.frame(do.call(rbind, lineData2))
-
-  lineData_df <- cbind(lineData_df1, lineData_df2) %>%
+  lineData <- cbind(lineData1, lineData2) %>%
     mutate(
       line1_color = ifelse(profit_line1 > 0, "lightsalmon", "red"),
       line2_color = ifelse(profit_line2 > 0, "lightblue", "darkblue")
@@ -406,12 +393,12 @@ nash <- function(data, type, var1, fix1, var2, fix2, population, sample) {
       marker = list(size = 4.5, color = ~point_color)
     ) %>%
     plotly::add_trace(
-      data = lineData_df, x = ~x1_line1, y = ~x2_line1, z = ~profit_line1,
+      data = lineData, x = ~x1, y = ~y1, z = ~profit_line1,
       type = "scatter3d", mode = "lines", showlegend = FALSE, opacity = .8,
       line = list(width = 8, color = ~line1_color, reverscale = FALSE)
     ) %>%
     plotly::add_trace(
-      data = lineData_df, x = ~x1_line2, y = ~x2_line2, z = ~profit_line2,
+      data = lineData, x = ~x2, y = ~y2, z = ~profit_line2,
       type = "scatter3d", mode = "lines", opacity = .8, showlegend = FALSE,
       line = list(width = 8, color = ~line2_color, reverscale = FALSE)
     ) %>%
@@ -437,4 +424,46 @@ nash <- function(data, type, var1, fix1, var2, fix2, population, sample) {
       )
     )
   return(suppressWarnings(plot3D))
+}
+
+
+nash2D <- function(data, type, var1, fix1, var2, fix2, population, sample){
+  lineDF1 <- profitLine(data, type, 1, var1, fix1, population, sample) %>%
+    rename(profit_line1 = profit_line,
+           x1 = x,
+           y1 = y)
+
+  lineDF2 <- profitLine(data, type, 2, var2, fix2, population, sample) %>%
+    rename(profit_line2 = profit_line,
+           y2 = x,
+           x2 = y)
+
+  lineData <- cbind(lineDF1, lineDF2) %>%
+    mutate(
+      line1_color = ifelse(profit_line1 > 0, "lightsalmon", "red"),
+      line2_color = ifelse(profit_line2 > 0, "lightblue", "darkblue"),
+      x1 = unlist(x1),
+      y1 = unlist(y1),
+      x2 = unlist(x2),
+      y2 = unlist(y2),
+      profit_line1 = unlist(profit_line1),
+      profit_line2 = unlist(profit_line2)
+    )
+  coord <- binary_Optim(data, type, cols[[1]], cols[[2]], cols[[3]], cols[[4]], var1, fix1, var2, fix2, population, sample)
+  coordDF <- data.frame( x = coord[[1]], y = coord[[2]])
+
+  # Plot the data
+  plot <- ggplot() +
+    geom_line(data = lineData, aes(x = x1, y = y1, color = line1_color), size = 2.6, alpha = .3) +
+    geom_line(data = lineData, aes(x = x2, y = y2, color = line2_color), size = 2.6, alpha = .3) +
+    geom_point(data = coordDF, aes(x = x, y = y), color = "palevioletred3", size = 2.6, alpha = .5) +
+    scale_color_identity() +
+    labs(title = "Nash Equilibrium",
+         x = paste(cols[[1]], "Price ($'s)"),
+         y = paste(cols[[2]], "Price ($'s)")) +
+    theme_minimal() +
+    annotate("text", x = max(lineData$x1), y = max(lineData$y1), label = cols[[1]], color = "lightsalmon2", hjust = 1, vjust = 1, size = 4, fontface = "bold") +
+    annotate("text", x = max(lineData$x2), y = max(lineData$y2), label = cols[[2]], color = "lightblue3", hjust = 1, vjust = 1, size = 4, fontface = "bold")
+
+  return(plot)
 }
