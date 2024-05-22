@@ -463,8 +463,11 @@ nash2D <- function(data, type, var1, fix1, var2, fix2, population, sample){
          x = paste(cols[[1]], "Price ($'s)"),
          y = paste(cols[[2]], "Price ($'s)")) +
     theme_minimal() +
-    annotate("text", x = max(lineData$x1), y = max(lineData$y1), label = cols[[1]], color = "lightsalmon2", hjust = 1, vjust = 1, size = 4, fontface = "bold") +
-    annotate("text", x = max(lineData$x2), y = max(lineData$y2), label = cols[[2]], color = "lightblue3", hjust = 1, vjust = 1, size = 4, fontface = "bold")
+    theme(plot.title = element_text(face = "bold"),
+          axis.text.x = element_text(size = 11),
+          axis.text.y = element_text(size = 11)) +
+    annotate("text", x = max(lineData$x1), y = max(lineData$y1), label = cols[[1]], color = "lightsalmon2", hjust = 1, vjust = 1, size = 5, fontface = "bold") +
+    annotate("text", x = max(lineData$x2), y = max(lineData$y2), label = cols[[2]], color = "lightblue3", hjust = 1, vjust = 1, size = 5, fontface = "bold")
 
   return(plot)
 }
