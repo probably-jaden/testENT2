@@ -33,7 +33,8 @@ demandPlot3D <- function(data, type, first_or_second, population, sample) {
   model_summary <- summary(anyModel_duo(data, type, cols[[1]], cols[[2]], cols[[3]]))
   r2 <- round(model_summary$adj.r.squared, 2)
   sigma <- round(model_summary$sigma, 2)
-  title_str <- paste0(type, ", r2: ", r2, ", sigma: ", sigma)
+  #title_str <- paste0(type, ", r2: ", r2, ", sigma: ", sigma)
+  title_str <- paste0("Demand: ", cols[[1]])
 
   mat_obj <- matrix_3D("Quantity", data, type, cols[[1]], cols[[2]], cols[[3]], population, sample)
 
@@ -56,7 +57,8 @@ demandPlot3D <- function(data, type, first_or_second, population, sample) {
         xaxis = list(title = cols[[1]]),
         yaxis = list(title = cols[[2]]),
         zaxis = list(title = cols[[3]])
-      )
+      ),
+      showlegend = FALSE
     )
   return(plot3D) #list(plot3D, model_summary))
 }
@@ -144,7 +146,8 @@ revenuePlot3D <- function(data, type, first_or_second, population, sample) {
         xaxis = list(title = cols[[1]]),
         yaxis = list(title = cols[[2]]),
         zaxis = list(title = "Revenue ($'s)")
-      )
+      ),
+      showlegend = FALSE
     )
   return(plot3D)
 }
@@ -174,7 +177,8 @@ costPlot3D <- function(data, type, first_or_second, var, fix, population, sample
         xaxis = list(title = cols[[1]]),
         yaxis = list(title = cols[[2]]),
         zaxis = list(title = "Cost ($'s)")
-      )
+      ),
+      showlegend = FALSE
     )
   return(plot3D)
 }
@@ -202,7 +206,8 @@ profitPlot3D <- function(data, type, first_or_second, var, fix, population, samp
         xaxis = list(title = cols[[1]]),
         yaxis = list(title = cols[[2]]),
         zaxis = list(title = "Profit ($'s)")
-      )
+      ),
+      showlegend = FALSE
     )
   return(plot3D)
 }
@@ -314,7 +319,7 @@ profitOptLine <- function(data, type, first_or_second, var, fix, population, sam
   lineDF <- profitLine(data, type, first_or_second, var, fix, population, sample) %>%
     mutate(line_color = ifelse(profit_line > 0, "green", "red"))
 
-  title_str <- paste("Profit Optimization Line for", cols[[1]])
+  title_str <- paste("Profit Optimization:", cols[[1]])
 
   data$Profit_Obs <- (data[[cols[[1]]]] * (data[[cols[[3]]]] * (population / sample))) - (((data[[cols[[3]]]] * (population / sample)) * var) + fix)
   points_df <- data.frame(x = data[[cols[[1]]]], y = data[[cols[[2]]]], z = data$Profit_Obs)
@@ -347,13 +352,11 @@ profitOptLine <- function(data, type, first_or_second, var, fix, population, sam
         xaxis = list(title = cols[[1]]),
         yaxis = list(title = cols[[2]]),
         zaxis = list(title = "Profit ($'s)")
-      )
+      ),
+      showlegend = FALSE
     )
   return(suppressWarnings(plot3D))
 }
-
-
-
 
 
 nash3D <- function(data, type, var1, fix1, var2, fix2, population, sample) {
@@ -376,8 +379,6 @@ nash3D <- function(data, type, var1, fix1, var2, fix2, population, sample) {
       line2_color = ifelse(profit_line2 > 0, "lightblue", "darkblue")
     )
 
-
-
   nash_point <- binary_Optim(data, type, cols1[[1]], cols1[[2]], cols1[[3]], cols1[[4]], var1, fix1, var2, fix2, population, sample)
   points_df <- data.frame(x = rep(nash_point[[1]], 2), y = rep(nash_point[[2]], 2), profit = rep(NA, 2), point_color = rep(NA, 2))
   points_df[1, 3] <- fPi_m(data, type, cols1[[1]], cols1[[2]], cols1[[3]], var1, fix1, population, sample)(points_df[[1, 1]], points_df[[1, 2]])
@@ -388,7 +389,8 @@ nash3D <- function(data, type, var1, fix1, var2, fix2, population, sample) {
   surface_mat1 <- matrix_3D("Profit", data, type, cols1[[1]], cols1[[2]], cols1[[3]], population, sample, var1, fix1)
   surface_mat2 <- matrix_3D("Profit", data, type, cols2[[1]], cols2[[2]], cols2[[3]], population, sample, var2, fix2)
 
-  title_str <- paste0("Equilibrium firm 1: $", round(nash_point[[1]], 2), ", firm 2: $", round(nash_point[[2]], 2))
+  #title_str <- paste0("Equilibrium firm 1: $", round(nash_point[[1]], 2), ", firm 2: $", round(nash_point[[2]], 2))
+  title_str <- "Reaction Functions & Nash Equilibrium"
 
   plot3D <- plotly::plot_ly() %>%
     plotly::add_markers(
@@ -425,7 +427,8 @@ nash3D <- function(data, type, var1, fix1, var2, fix2, population, sample) {
         xaxis = list(title = cols1[[1]]),
         yaxis = list(title = cols1[[2]]),
         zaxis = list(title = "Profit ($'s)")
-      )
+      ),
+      showlegend = FALSE
     )
   return(suppressWarnings(plot3D))
 }
