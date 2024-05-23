@@ -352,6 +352,15 @@ profitOptLine <- function(data, type, first_or_second, var, fix, population, sam
   return(suppressWarnings(plot3D))
 }
 
+data <- cpClean
+type <- "Linear"
+var1 <- 1
+fix1 <- 1
+var2 <- 1
+fix2 <- 1
+population <- 1000
+sample <- 2
+
 
 
 nash3D <- function(data, type, var1, fix1, var2, fix2, population, sample) {
@@ -374,10 +383,12 @@ nash3D <- function(data, type, var1, fix1, var2, fix2, population, sample) {
       line2_color = ifelse(profit_line2 > 0, "lightblue", "darkblue")
     )
 
+
+
   nash_point <- binary_Optim(data, type, cols1[[1]], cols1[[2]], cols1[[3]], cols1[[4]], var1, fix1, var2, fix2, population, sample)
   points_df <- data.frame(x = rep(nash_point[[1]], 2), y = rep(nash_point[[2]], 2), profit = rep(NA, 2), point_color = rep(NA, 2))
-  points_df[1, 3] <- lineGenFun1(nash_point[[2]])[[2]]
-  points_df[2, 3] <- lineGenFun2(nash_point[[1]])[[2]]
+  points_df[1, 3] <- fPi_m(data, type, cols1[[1]], cols1[[2]], cols1[[3]], var1, fix1, population, sample)(points_df[[1, 1]], points_df[[1, 2]])
+  points_df[2, 3] <- fPi_m(data, type, cols2[[1]], cols2[[2]], cols2[[3]], var1, fix1, population, sample)(points_df[[2, 1]], points_df[[2, 2]])
   points_df[1, 4] <- ifelse(points_df[1, 3] > 0, "lightsalmon", "red")
   points_df[2, 4] <- ifelse(points_df[2, 3] > 0, "lightblue", "darkblue")
 
