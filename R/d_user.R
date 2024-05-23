@@ -352,14 +352,7 @@ profitOptLine <- function(data, type, first_or_second, var, fix, population, sam
   return(suppressWarnings(plot3D))
 }
 
-data <- cpClean
-type <- "Linear"
-var1 <- 1
-fix1 <- 1
-var2 <- 1
-fix2 <- 1
-population <- 1000
-sample <- 2
+
 
 
 
