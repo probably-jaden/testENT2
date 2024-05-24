@@ -217,8 +217,8 @@ demandFormula2 <- function(data, type, population, sample = NA) {
 #' @export
 #'
 #' @examples
-demandPlot <- function(data = NULL, type = NULL, population = NULL, sample = NULL) {
-  if (is.null(data) | is.null(type) | is.null(population) | is.null(sample)) {
+demandPlot <- function(price = NULL, data = NULL, type = NULL, population = NULL, sample = NULL) {
+  if (is.null(price) | is.null(data) | is.null(type) | is.null(population) | is.null(sample)) {
     return("Nice!")
   }
   title <- paste("Demand:", type)
@@ -253,6 +253,14 @@ demandPlot <- function(data = NULL, type = NULL, population = NULL, sample = NUL
       breaks = scales::extended_breaks(),
       limits = c(0, NA)
     ) +
+    geom_segment(
+      x = price, y = 0, xend = price, yend = fQ(price),
+      linetype = "dashed", color = "darkorange2", lwd = .6
+    ) +
+    geom_segment(
+      x = 0, y = fQ(price), xend = price, yend = fQ(price),
+      linetype = "dashed", color = "orange", lwd = .4
+    ) +
     theme(plot.title = element_text(face = "bold")) +
     theme_minimal() +
     theme(
@@ -264,6 +272,11 @@ demandPlot <- function(data = NULL, type = NULL, population = NULL, sample = NUL
   return(newPlot)
 }
 
+#demandPlot(2, cpClean, "Linear", )
+
+#demandDurable(cp, "cupcakes")
+#cp
+#cpClean
 
 demandFunctionPlot <- function(price, data, type, population, sample = NA){
   fQ <- scaleFunction(data, type, "wtp", "quantity", population, sample)
