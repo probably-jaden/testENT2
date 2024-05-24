@@ -221,7 +221,8 @@ demandPlot <- function(price = NULL, data = NULL, type = NULL, population = NULL
   if (is.null(price) | is.null(data) | is.null(type) | is.null(population) | is.null(sample)) {
     return("Nice!")
   }
-  title <- paste("Demand:", type)
+  #title <- paste("Demand:", type)
+  title <- "Demand"
   rSq <- round(rSquaredDemand(data, type), 3)
   fQ <- fQ(data, type, population, sample)
   if (class(fQ) == class(NA)) {
@@ -248,13 +249,13 @@ demandPlot <- function(price = NULL, data = NULL, type = NULL, population = NULL
       label = paste("Quantity Sold:", showQuantity),
       #label = paste("R squared:", rSq),
       vjust = 1, hjust = 1, size = 5,
-      color = "darkorange", alpha = .8,
+      color = "darkorange2", alpha = .8,
       fontface = "bold"
     ) +
     scale_y_continuous(
       labels = scales::label_number(scale_cut = scales::cut_short_scale()),
-      breaks = scales::extended_breaks(),
-      limits = c(0, NA)
+      breaks = scales::extended_breaks()#,
+      #limits = c(0, NA)
     ) +
     geom_segment(
       x = price, y = 0, xend = price, yend = fQ(price),
