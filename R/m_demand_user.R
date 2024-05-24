@@ -231,7 +231,8 @@ demandPlot <- function(price = NULL, data = NULL, type = NULL, population = NULL
 
   yLowest <- min(0, floor(this_fQ(max(data$wtp))))
 
-  showQuantity <- conNum_short(floor(this_fQ(price)))
+  quantityPrefix <- ifelse(this_fQ(price) < 0, "-", "")
+  showQuantity <- paste0(quantityPrefix, conNum_short(floor(this_fQ(price))))
 
   if (is.null(sample)) sample <- nrow(data)
   scalar <- population / sample

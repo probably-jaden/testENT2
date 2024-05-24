@@ -88,7 +88,9 @@ profitFunctionPlot <- function(price, data, type, variable, fixed, population, s
     price <- round(price, 2)
 
     show_price <- paste0("$", format(round(price, 2), big.mark = ","))
-    show_profit <- paste0("$", conNum_short(round(this_fPi(price), 2)))
+
+    profitPrefix <- ifelse(this_fPi(price) < 0, "-$", "$")
+    show_profit <- paste0(profitPrefix, conNum_short(round(this_fPi(price), 2)))
 
     opt_Profit <- optimize(this_fPi, lower = 0, upper = max(data$wtp), maximum = TRUE)[[2]]
 
