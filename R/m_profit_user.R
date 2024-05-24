@@ -68,7 +68,6 @@ profitPlot <- function(data, type, variable, fixed, population, sampleSize = NA,
 }
 
 
-
 profitFunctionPlot <- function(price, data, type, variable, fixed, population, sample = NA){
     this_fQ <- fQ(data, type, population, sample)
     if (class(this_fQ) == class(NA)) {
@@ -78,40 +77,42 @@ profitFunctionPlot <- function(price, data, type, variable, fixed, population, s
     this_fC <- fC(variable, fixed, this_fQ)
     this_fPi <- function(p) this_fR(p) - this_fC(p)
 
-
     data <- data %>%
-      mutate(profit = (wtp * quantity * (population/sample)) - ((variable * (quantity * (population/sample))) +  fixed))
+      mutate(profit = (wtp * quantity * (population/sample)) - (fixed + (variable * quantity * (population/sample))),
+             netColor = ifelse(profit < 0, "red4", "green4"))
 
-    test2 <-ggplot(data = data)+
-      geom_point(aes(x = wtp, y = profit))
+    lineDF <- data.frame(price = seq(min(data$wtp), max(data$wtp), length.out = 1000))
+    lineDF <- lineDF %>%
+      mutate(profit = this_fPi(price),
+             netColorLine = ifelse(profit < 0, "red", "green3"),
+             profit_next = lead(profit),    # Next y-value for segment
+             price_next = lead(price)     # Next x-value for segment
+             ) %>%
+      filter(!is.na(profit_next))
+
+
 
     price <- round(price, 2)
-
     show_price <- paste0("$", format(round(price, 2), big.mark = ","))
 
     profitPrefix <- ifelse(this_fPi(price) < 0, "-$", "$")
     show_profit <- paste0(profitPrefix, conNum_short(round(this_fPi(price), 2)))
-
-    opt_Profit <- optimize(this_fPi, lower = 0, upper = max(data$wtp), maximum = TRUE)[[2]]
-
-    yHighest <- max(opt_Profit, max(data$profit))
-    yLowest <- min(floor(this_fPi(0)), floor(min(data$profit)), floor(this_fPi(max(data$wtp))))
-
     title <- paste0("Profit when Price is ", show_price)
 
-    newPlot <- ggplot(data = data) +
+    #opt_Profit <- optimize(this_fPi, lower = 0, upper = max(data$wtp), maximum = TRUE)[[2]]
+    #yHighest <- max(opt_Profit, max(data$profit))
+    yLowest <- min(floor(this_fPi(0)), floor(min(data$profit)), floor(this_fPi(max(data$wtp))))
+
+
+    newPlot <- ggplot() +
       xlim(0, max(data$wtp)) +
-      geom_function(fun = this_fPi, color = "green3", lwd = 1.8, alpha = .7) +
+      #geom_function(data = data, fun = this_fPi, color = "green3", lwd = 1.8, alpha = .7) +
+      geom_segment(data = lineDF, aes(x = price, y = profit, xend = price_next, yend = profit_next, color = netColorLine), size = 1.8, alpha = .6) +
+      scale_color_identity() +
       geom_point(aes(x = price, y = this_fPi(price)), color = "green4", size = 2) +
-      geom_segment(
-        x = price, y = yLowest, xend = price, yend = this_fPi(price),
-        linetype = "dashed", color = "green4", lwd = .6
-      ) +
-      geom_segment(
-        x = 0, y = this_fPi(price), xend = price, yend = this_fPi(price),
-        linetype = "dashed", color = "green3", lwd = .4
-      ) +
-      geom_point(aes(x = wtp, y = profit), color = "green4", size = 2, alpha = .8)+
+      geom_segment(data = data, x = price, y = yLowest, xend = price, yend = this_fPi(price), linetype = "dashed", color = "green4", lwd = .6) +
+      geom_segment(data = data, x = 0, y = this_fPi(price), xend = price, yend = this_fPi(price), linetype = "dashed", color = "green3", lwd = .4) +
+      geom_point(data = data, aes(x = wtp, y = profit, color = netColor), size = 2, alpha = .8)+ #color = "green4")+
       labs(title = title, x = "Price ($'s)", y = "Profit ($'s) ") +
       scale_y_continuous(
         labels = scales::label_number(scale_cut = scales::cut_short_scale()),
@@ -136,6 +137,7 @@ profitFunctionPlot <- function(price, data, type, variable, fixed, population, s
 
   return(suppressWarnings(newPlot))
 }
+
 
 
 profitFunction <- function(price, data, type, variable, fixed, population, sample = NA) {
