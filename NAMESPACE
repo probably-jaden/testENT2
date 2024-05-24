@@ -30,6 +30,7 @@ exportPattern("^[[:alpha:]]+")
  importFrom (dplyr, across)
  importFrom (dplyr, n)
  importFrom (dplyr, ungroup)
+ importFrom (dplyr, lead)
 
  importFrom (stats, coef)
  importFrom (stats, lm)

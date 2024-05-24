@@ -90,8 +90,6 @@ profitFunctionPlot <- function(price, data, type, variable, fixed, population, s
              ) %>%
       filter(!is.na(profit_next))
 
-
-
     price <- round(price, 2)
     show_price <- paste0("$", format(round(price, 2), big.mark = ","))
 
@@ -137,6 +135,11 @@ profitFunctionPlot <- function(price, data, type, variable, fixed, population, s
 
   return(suppressWarnings(newPlot))
 }
+
+cp <- read_csv("CupcakesTest.csv")
+cpC <- demandDurable(cp, "cupcakes")
+
+profitFunctionPlot(1.27, cpC, "Exponential", 1, 1, 1000, 1)
 
 
 
