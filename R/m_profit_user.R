@@ -109,7 +109,7 @@ profitFunctionPlot <- function(price, data, type, variable, fixed, population, s
         x = 0, y = this_fPi(price), xend = price, yend = this_fPi(price),
         linetype = "dashed", color = "green3", lwd = .4
       ) +
-      geom_point(aes(x = wtp, y = profit), color = "green4", size = 2, alpha = .4)+
+      geom_point(aes(x = wtp, y = profit), color = "green4", size = 2, alpha = .8)+
       labs(title = title, x = "Price ($'s)", y = "Profit ($'s) ") +
       scale_y_continuous(
         labels = scales::label_number(scale_cut = scales::cut_short_scale()),
