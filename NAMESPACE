@@ -15,6 +15,7 @@ exportPattern("^[[:alpha:]]+")
  importFrom (ggplot2, ylim)
  importFrom (ggplot2, geom_segment)
  importFrom (ggplot2, annotate)
+ importFrom (ggplot2, scale_color_identity
 
  importFrom (dplyr, mutate)
  importFrom (dplyr, `%>%`)
