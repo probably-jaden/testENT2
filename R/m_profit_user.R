@@ -92,8 +92,8 @@ profitFunctionPlot <- function(price, data, type, variable, fixed, population, s
 
     opt_Profit <- optimize(this_fPi, lower = 0, upper = max(data$wtp), maximum = TRUE)[[2]]
 
-    yHighest <- ceiling(ifelse(opt_Profit > max(data$profit), opt_Profit, max(data$profit)))
-    yLowest <- floor(ifelse(this_fPi(0) < min(data$profit), this_fPi(0) , min(data$profit)))
+    yHighest <- max(opt_Profit, max(data$profit))
+    yLowest <- min(floor(this_fPi(0)), floor(min(data$profit)), floor(this_fPi(max(data$wtp))))
 
     title <- paste0("Profit when Price is ", show_price)
 
@@ -109,7 +109,7 @@ profitFunctionPlot <- function(price, data, type, variable, fixed, population, s
         x = 0, y = this_fPi(price), xend = price, yend = this_fPi(price),
         linetype = "dashed", color = "green3", lwd = .4
       ) +
-      geom_point(aes(x = wtp, y = profit), color = "green4", size = 3, alpha = .4)+
+      geom_point(aes(x = wtp, y = profit), color = "green4", size = 2, alpha = .4)+
       labs(title = title, x = "Price ($'s)", y = "Profit ($'s) ") +
       scale_y_continuous(
         labels = scales::label_number(scale_cut = scales::cut_short_scale()),

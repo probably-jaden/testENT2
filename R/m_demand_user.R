@@ -224,12 +224,14 @@ demandPlot <- function(price = NULL, data = NULL, type = NULL, population = NULL
   #title <- paste("Demand:", type)
   title <- "Demand"
   rSq <- round(rSquaredDemand(data, type), 3)
-  fQ <- fQ(data, type, population, sample)
-  if (class(fQ) == class(NA)) {
+  this_fQ <- fQ(data, type, population, sample)
+  if (class(this_fQ) == class(NA)) {
     return()
   }
 
-  showQuantity <- conNum_short(floor(fQ(price)))
+  yLowest <- min(0, floor(this_fQ(max(data$wtp))))
+
+  showQuantity <- conNum_short(floor(this_fQ(price)))
 
   if (is.null(sample)) sample <- nrow(data)
   scalar <- population / sample
@@ -239,7 +241,7 @@ demandPlot <- function(price = NULL, data = NULL, type = NULL, population = NULL
 
   newPlot <- ggplot(data = newTibble) +
     geom_function(
-      fun = fQ,
+      fun = this_fQ,
       color = "orange", lwd = 1.5, alpha = .4
     ) +
     geom_point(mapping = aes(x = wtp, y = scaled_quantity), color = "darkorange", size = 2, alpha = .8) +
@@ -258,14 +260,14 @@ demandPlot <- function(price = NULL, data = NULL, type = NULL, population = NULL
       #limits = c(0, NA)
     ) +
     geom_segment(
-      x = price, y = 0, xend = price, yend = fQ(price),
+      x = price, y = yLowest, xend = price, yend = this_fQ(price),
       linetype = "dashed", color = "darkorange2", lwd = .6
     ) +
     geom_segment(
-      x = 0, y = fQ(price), xend = price, yend = fQ(price),
+      x = 0, y = this_fQ(price), xend = price, yend = this_fQ(price),
       linetype = "dashed", color = "orange", lwd = .4
     ) +
-    geom_point(x = price, y = fQ(price), color = "darkorange3", size = 2) +
+    geom_point(x = price, y = this_fQ(price), color = "darkorange3", size = 2) +
     theme(plot.title = element_text(face = "bold")) +
     theme_minimal() +
     theme(
