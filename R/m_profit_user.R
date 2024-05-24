@@ -96,6 +96,7 @@ profitFunctionPlot <- function(price, data, type, variable, fixed, population, s
     profitPrefix <- ifelse(this_fPi(price) < 0, "-$", "$")
     show_profit <- paste0(profitPrefix, conNum_short(round(this_fPi(price), 2)))
     title <- paste0("Profit when Price is ", show_price)
+    annotation_color <- ifelse(this_fPi(price) < 0, "red4", "green4")
 
     #opt_Profit <- optimize(this_fPi, lower = 0, upper = max(data$wtp), maximum = TRUE)[[2]]
     #yHighest <- max(opt_Profit, max(data$profit))
@@ -107,9 +108,9 @@ profitFunctionPlot <- function(price, data, type, variable, fixed, population, s
       #geom_function(data = data, fun = this_fPi, color = "green3", lwd = 1.8, alpha = .7) +
       geom_segment(data = lineDF, aes(x = price, y = profit, xend = price_next, yend = profit_next, color = netColorLine), size = 1.8, alpha = .4) +
       scale_color_identity() +
-      geom_point(aes(x = price, y = this_fPi(price)), color = "blue4", size = 2) +
-      geom_segment(data = data, x = price, y = yLowest, xend = price, yend = this_fPi(price), linetype = "dashed", color = "blue4", lwd = .4) +
-      geom_segment(data = data, x = 0, y = this_fPi(price), xend = price, yend = this_fPi(price), linetype = "dashed", color = "darkblue", lwd = .3) +
+      geom_point(aes(x = price, y = this_fPi(price)), color = annotation_color, size = 2) +
+      geom_segment(data = data, x = price, y = yLowest, xend = price, yend = this_fPi(price), linetype = "dashed", color = annotation_color, lwd = .4) +
+      geom_segment(data = data, x = 0, y = this_fPi(price), xend = price, yend = this_fPi(price), linetype = "dashed", color = annotation_color, lwd = .3) +
       geom_point(data = data, aes(x = wtp, y = profit, color = netColor), size = 2, alpha = .8)+ #color = "green4")+
       labs(title = title, x = "Price ($'s)", y = "Profit ($'s) ") +
       scale_y_continuous(
@@ -123,7 +124,7 @@ profitFunctionPlot <- function(price, data, type, variable, fixed, population, s
                x = Inf, y = Inf,
                label = (paste("Profit:", show_profit)),
                vjust = 1, hjust = 1, size = 5,
-               color = "darkgreen", alpha = .8,
+               color = annotation_color, alpha = .8,
                fontface = "bold"
       ) +
       theme(
