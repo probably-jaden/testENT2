@@ -228,6 +228,8 @@ demandPlot <- function(price = NULL, data = NULL, type = NULL, population = NULL
     return()
   }
 
+  showQuantity <- conNum_short(floor(fQ(price)))
+
   if (is.null(sample)) sample <- nrow(data)
   scalar <- population / sample
 
@@ -237,13 +239,14 @@ demandPlot <- function(price = NULL, data = NULL, type = NULL, population = NULL
   newPlot <- ggplot(data = newTibble) +
     geom_function(
       fun = fQ,
-      color = "orange", lwd = 1.5, alpha = .8
+      color = "orange", lwd = 1.5, alpha = .4
     ) +
-    geom_point(mapping = aes(x = wtp, y = scaled_quantity), color = "darkorange", size = 2) +
+    geom_point(mapping = aes(x = wtp, y = scaled_quantity), color = "darkorange", size = 2, alpha = .8) +
     labs(title = title, x = "Price ($'s)", y = "Quantity Sold ") +
     annotate("label",
       x = Inf, y = Inf,
-      label = paste("R squared:", rSq),
+      label = paste("Quantity Sold:", showQuantity),
+      #label = paste("R squared:", rSq),
       vjust = 1, hjust = 1, size = 5,
       color = "darkorange", alpha = .8,
       fontface = "bold"
@@ -261,6 +264,7 @@ demandPlot <- function(price = NULL, data = NULL, type = NULL, population = NULL
       x = 0, y = fQ(price), xend = price, yend = fQ(price),
       linetype = "dashed", color = "orange", lwd = .4
     ) +
+    geom_point(x = price, y = fQ(price), color = "darkorange3", size = 2) +
     theme(plot.title = element_text(face = "bold")) +
     theme_minimal() +
     theme(
@@ -272,11 +276,6 @@ demandPlot <- function(price = NULL, data = NULL, type = NULL, population = NULL
   return(newPlot)
 }
 
-#demandPlot(2, cpClean, "Linear", )
-
-#demandDurable(cp, "cupcakes")
-#cp
-#cpClean
 
 demandFunctionPlot <- function(price, data, type, population, sample = NA){
   fQ <- scaleFunction(data, type, "wtp", "quantity", population, sample)
