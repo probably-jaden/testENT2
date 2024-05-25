@@ -245,8 +245,8 @@ linInterpret <- function(data, population, sample = NA) {
   int <- conNum_long(coef(demandModel(data, "Linear"))[[1]] * scalar)
   slope <- conNum_long(coef(demandModel(data, "Linear"))[[2]] * scalar)
 
-  intInterpret <- paste0("<ul> <b>Intercept</b>: If the price was $0 we expect to sell <b>", int, "</b> unit(s)\n")
-  slopeInterpret <- paste0("<ul> <b>Slope</b>: For every $1 dollar increase in price, we loose <b>", slope, "</b> sale(s) on average\n")
+  intInterpret <- paste0("<b>Intercept</b>: If the price was $0 we expect to sell <b>", int, "</b> unit(s)\n")
+  slopeInterpret <- paste0("<b>Slope</b>: For every $1 dollar increase in price, we loose <b>", slope, "</b> sale(s) on average\n")
 
   return(list(intInterpret, slopeInterpret))
 }
@@ -259,8 +259,8 @@ expInterpret <- function(data, population, sample = NA) {
   slope <- coef(demandModel(data, "Exponential"))[[2]]
   slopePercent <- conNum_long((exp(slope) - 1) * 100)
 
-  intInterpret <- paste0(" * **Intercept**: If the price was $0 we expect to sell **", intercept, "** unit(s)\n")
-  slopeInterpret <- paste0(" * **Slope**: For every $1 dollar increase in price, our sales will drop by **", slopePercent, "%**\n")
+  intInterpret <- paste0("<b>Intercept</b>: If the price was $0 we expect to sell <b>", intercept, "</b> unit(s)\n")
+  slopeInterpret <- paste0("<b>Slope</b>: For every $1 dollar increase in price, our sales will drop by <b>", slopePercent, "</b>\n")
 
   return(list(intInterpret, slopeInterpret))
 }
@@ -273,8 +273,8 @@ logInterpret <- function(data, population, sample = NA) {
   slope <- coef(demandModel(data, "Log"))[[2]] * scalar
   slopeRate <- conNum_short(round(slope / 100, 2))
 
-  intInterpret <- paste0(" * **Intercept** : If the price was $0 we expect to sell **", intercept, "** unit(s)\n")
-  slopeInterpret <- paste0(" * **Slope** : For every 1% increase in price, we loose **", slopeRate, "** sales on average\n")
+  intInterpret <- paste0("<b>Intercept</b>: If the price was $0 we expect to sell <b>", intercept, "</b> unit(s)\n")
+  slopeInterpret <- paste0("<b>Slope</b> : For every 1% increase in price, we loose <b>", slopeRate, "</b> sales on average\n")
 
   return(list(intInterpret, slopeInterpret))
 }
@@ -287,8 +287,8 @@ powInterpret <- function(data, population, sample = NA) {
   slope <- coef(demandModel(data, "Power"))[[2]]
   slopePercent <- conNum_short(slope * 100)
 
-  intInterpret <- paste0(" * **Intercept**: If the price was $0 we expect to sell **", intercept, "** unit(s)\n")
-  slopeInterpret <- paste0(" * **Slope**: For every 1% increase in price, our sales will drop by **", slopePercent, "%** \n")
+  intInterpret <- paste0("<b>Intercept</b>: If the price was $0 we expect to sell <b>", intercept, "</b> unit(s)\n")
+  slopeInterpret <- paste0("<b>Slope</b>: For every 1% increase in price, our sales will drop by <b>", slopePercent, "%</b> \n")
 
   return(list(intInterpret, slopeInterpret))
 }
@@ -306,8 +306,8 @@ sigInterpret <- function(data, population, sample = NA) {
   B_Mid <- conNum_short(round(coef(model)[[2]], 2))
   # C_scale <- coef(model)[[3]]
 
-  intInterpret <- paste0(" * **Intercept**: If the price was $0 we expect to sell **", A_Int, "** unit(s)\n")
-  midPointInterpret <- paste0(" * **Mid-Point**: The curve will change from decreasing at an increasing rate to a decreasing rate when the price equals **$", B_Mid, "**\n")
+  intInterpret <- paste0("<b>Intercept</b>: If the price was $0 we expect to sell <b>", A_Int, "</b> unit(s)\n")
+  midPointInterpret <- paste0("<b>Mid-Point</b>: The curve will change from decreasing at an increasing rate to a decreasing rate when the price equals <b>$", B_Mid, "</b>\n")
 
   return(list(intInterpret, midPointInterpret))
 }
