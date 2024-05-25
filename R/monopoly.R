@@ -260,7 +260,7 @@ expInterpret <- function(data, population, sample = NA) {
   slopePercent <- conNum_long((exp(slope) - 1) * 100)
 
   intInterpret <- paste0("<b>Intercept</b>: If the price was $0 we expect to sell <b>", intercept, "</b> unit(s)\n")
-  slopeInterpret <- paste0("<b>Slope</b>: For every $1 dollar increase in price, our sales will drop by <b>", slopePercent, "</b>\n")
+  slopeInterpret <- paste0("<b>Slope</b>: For every $1 dollar increase in price, our sales will drop by <b>", slopePercent, "%</b>\n")
 
   return(list(intInterpret, slopeInterpret))
 }
