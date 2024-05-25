@@ -245,8 +245,8 @@ linInterpret <- function(data, population, sample = NA) {
   int <- conNum_long(coef(demandModel(data, "Linear"))[[1]] * scalar)
   slope <- conNum_long(coef(demandModel(data, "Linear"))[[2]] * scalar)
 
-  intInterpret <- paste0("<ul> <b>Intercept** : If the price was $0 we expect to sell <b>", int, "</b> unit(s)\n")
-  slopeInterpret <- paste0("<ul> <b>Slope</b> : For every $1 dollar increase in price, we loose <b>", slope, "</b> sale(s) on average\n")
+  intInterpret <- paste0("<ul> <b>Intercept</b>: If the price was $0 we expect to sell <b>", int, "</b> unit(s)\n")
+  slopeInterpret <- paste0("<ul> <b>Slope</b>: For every $1 dollar increase in price, we loose <b>", slope, "</b> sale(s) on average\n")
 
   return(list(intInterpret, slopeInterpret))
 }
