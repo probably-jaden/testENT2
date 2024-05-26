@@ -21,6 +21,8 @@ profitPlot <- function(data, type, variable, fixed, population, sampleSize = NA,
 
   show_Profit <- paste0("$", conNum_short(round(opt_Profit, 2)))
   show_Price <- paste0("$", conNum_short(round(opt_Price, 2)))
+  show_rev <- paste0("$", conNum_short(round(fR(opt_Price), 2)))
+  show_cost <- paste0("$", conNum_short(round(fC(opt_Price), 2)))
 
   if (yCap == 0) {
     yCap <- opt_Revenue
@@ -40,15 +42,29 @@ profitPlot <- function(data, type, variable, fixed, population, sampleSize = NA,
       x = Inf, y = Inf,
       label = paste("Price:", show_Price),
       vjust = 1, hjust = 1, size = 4,
-      color = "darkgreen", alpha = .8,
+      color = "blue2", alpha = .8,
       fontface = "bold"
     ) +
     annotate("label",
-      x = Inf, y = Inf,
-      label = (paste("Profit:", show_Profit)),
-      vjust = 2.5, hjust = 1, size = 4,
-      color = "darkgreen", alpha = .8,
-      fontface = "bold"
+             x = Inf, y = Inf,
+             label = (paste("Revenue:", show_rev)),
+             vjust = 2.5, hjust = 1, size = 4,
+             color = "deepskyblue2", alpha = .8,
+             fontface = "bold"
+    ) +
+    annotate("label",
+             x = Inf, y = Inf,
+             label = (paste("Cost:", show_cost)),
+             vjust = 4, hjust = 1, size = 4,
+             color = "red", alpha = .8,
+             fontface = "bold"
+    ) +
+    annotate("label",
+             x = Inf, y = Inf,
+             label = (paste("Profit:", show_Profit)),
+             vjust = 5.5, hjust = 1, size = 4,
+             color = "green3", alpha = .8,
+             fontface = "bold"
     ) +
     theme(
       axis.text = element_text(size = 11),
@@ -67,6 +83,7 @@ profitPlot <- function(data, type, variable, fixed, population, sampleSize = NA,
   return(suppressWarnings(plot))
 }
 
+profitPlot(cpC, "Linear", 1, 1, 100, 1)
 
 profitFunctionPlot <- function(price, data, type, variable, fixed, population, sample = NA){
     this_fQ <- fQ(data, type, population, sample)

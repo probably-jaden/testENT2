@@ -16,6 +16,7 @@ roundLog <- function(x, base = 10) {
   }
 }
 
+
 conNum_short <- function(number) {
   rounded_Num <- abs(round(number, 3))
   formatted_Num <- if (rounded_Num >= 1e12) {
