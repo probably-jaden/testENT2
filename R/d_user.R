@@ -31,7 +31,7 @@ demandSummaryDuo <- function(data, type, first_or_second) {
 demandPlot3D <- function(data, type, first_or_second, population, sample) {
   cols <- whichColumns(first_or_second, data)
   model_summary <- summary(anyModel_duo(data, type, cols[[1]], cols[[2]], cols[[3]]))
-  r2 <- round(model_summary$adj.r.squared, 2)
+  #r2 <- round(model_summary$adj.r.squared, 2)
   sigma <- round(model_summary$sigma, 2)
   #title_str <- paste0(type, ", r2: ", r2, ", sigma: ", sigma)
   title_str <- paste0("Demand: ", cols[[1]])
@@ -63,7 +63,16 @@ demandPlot3D <- function(data, type, first_or_second, population, sample) {
   return(plot3D) #list(plot3D, model_summary))
 }
 
-demandPlotDuo <- function(competitor_price, data, type, first_or_second, population, sample = NA) {
+
+#competitor_price <- 2
+#price <- 1
+#data <- cpM
+#type <- "Linear"
+#first_or_second <- 1
+#population <- 100000
+#sample <- 1000
+
+demandPlotDuo <- function(competitor_price, price, data, type, first_or_second, population, sample = NA) {
   cols <- whichColumns(first_or_second, data)
   title <- paste("Demand:", type)
   fQm_this <- function(price1) fQm(data, type, cols[[1]], cols[[2]], cols[[3]], population, sample)(price1, competitor_price)
@@ -74,6 +83,9 @@ demandPlotDuo <- function(competitor_price, data, type, first_or_second, populat
   model_summary <- summary(anyModel_duo(data, type, cols[[1]], cols[[2]], cols[[3]]))
   rSq <- round(model_summary$adj.r.squared, 3)
 
+  qSold_prefix <- ifelse(fQm_this(price) > 0, "", "-")
+  qSold_str <- paste0(qSold_prefix, conNum_short(floor(fQm_this(price))))
+
   if (class(sample) == class(NA)) sample <- nrow(data)
   scalar <- population / sample
 
@@ -82,21 +94,33 @@ demandPlotDuo <- function(competitor_price, data, type, first_or_second, populat
   new_df_1$x1 <- data[[cols[[1]]]]
   new_df_1$x2 <- data[[cols[[2]]]]
   new_df_1$y <- data$scaled_y
+  new_df_1$distCPrice <- sqrt((data[[cols[[2]]]] - competitor_price)^2)
+  new_df_1$distCPriceN <- 1/(new_df_1$distCPrice + 1)
+
 
   newPlot <- ggplot(data = new_df_1) +
     geom_function(
       fun = fQm_this,
-      color = "orange", lwd = 1.5, alpha = .8
+      color = "orange", lwd = 1, alpha = .8
     ) +
-    geom_point(mapping = aes(x = x1, y = y), color = "darkorange", size = 2) +
+    geom_point(mapping = aes(x = x1, y = y, alpha = distCPriceN), color = "darkorange", size = 2) +
     labs(title = title, x = "Price ($'s)", y = "Quantity Sold ") +
     annotate("label",
       x = Inf, y = Inf,
-      label = paste("R squared:", rSq),
-      vjust = 1, hjust = 1, size = 5,
+      label = paste("Quantity Sold:", qSold_str),
+      vjust = 1, hjust = 1.1, size = 5,
       color = "darkorange", alpha = .8,
       fontface = "bold"
     ) +
+    geom_segment(
+      x = price, y = yLowest, xend = price, yend = fQm_this(price),
+      linetype = "dashed", color = "darkorange2", lwd = .6
+    ) +
+    geom_segment(
+      x = 0, y = fQm_this(price), xend = price, yend = fQm_this(price),
+      linetype = "dashed", color = "orange", lwd = .4
+    ) +
+    geom_point(x = price, y = fQm_this(price), color = "darkorange3", size = 2) +
     scale_y_continuous(
       labels = label_number(scale_cut = cut_short_scale()),
       breaks = scales::extended_breaks(),
@@ -112,6 +136,13 @@ demandPlotDuo <- function(competitor_price, data, type, first_or_second, populat
     theme(plot.title = element_text(face = "bold"))
   return(suppressWarnings(newPlot))
 }
+
+#library(scales)
+
+#cp
+#cpM <- quantityCreation_duo(cp, "cupcakes", "donuts")
+
+#demandPlotDuo(.03, 3, cpM, "Exponential", 1, 1, 1)
 
 
 
