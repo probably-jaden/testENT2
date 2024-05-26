@@ -204,6 +204,18 @@ demandFormula2 <- function(data, type, population, sample = NA) {
     stop("Invalid type")
   )
 }
+library(tidyverse)
+cp <- read_csv("~/Desktop/CupcakesTest.csv")
+cpC <- demandDurable(cp, "cupcakes")
+
+nrow(cpC)
+demandPlot(1.27, cpC, "Exponential", 1000, 10)
+
+data <- cpC
+price = 1.27
+type = "Exponential"
+population = 1000
+sample = 10
 
 
 #' Title
@@ -257,7 +269,7 @@ demandPlot <- function(price = NULL, data = NULL, type = NULL, population = NULL
     ) +
     scale_y_continuous(
       labels = scales::label_number(scale_cut = scales::cut_short_scale()),
-      breaks = scales::extended_breaks()#,
+      breaks = waiver()#,
       #limits = c(0, NA)
     ) +
     geom_segment(
@@ -279,6 +291,9 @@ demandPlot <- function(price = NULL, data = NULL, type = NULL, population = NULL
     theme(plot.title = element_text(face = "bold"))
   return(newPlot)
 }
+
+#round(rSquaredDemand(cpC, "Log"), 3)
+#cpC
 
 
 demandFunctionPlot <- function(price, data, type, population, sample = NA){
