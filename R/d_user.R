@@ -113,7 +113,7 @@ demandPlotDuo <- function(competitor_price, price, data, type, first_or_second, 
       fontface = "bold"
     ) +
     geom_segment(
-      x = price, y = yLowest, xend = price, yend = fQm_this(price),
+      x = price, y = 0, xend = price, yend = fQm_this(price),
       linetype = "dashed", color = "darkorange2", lwd = .6
     ) +
     geom_segment(
