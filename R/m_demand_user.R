@@ -204,18 +204,7 @@ demandFormula2 <- function(data, type, population, sample = NA) {
     stop("Invalid type")
   )
 }
-library(tidyverse)
-cp <- read_csv("~/Desktop/CupcakesTest.csv")
-cpC <- demandDurable(cp, "cupcakes")
 
-nrow(cpC)
-demandPlot(1.27, cpC, "Exponential", 1000, 10)
-
-data <- cpC
-price = 1.27
-type = "Exponential"
-population = 1000
-sample = 10
 
 
 #' Title

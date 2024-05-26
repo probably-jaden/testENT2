@@ -480,8 +480,3 @@ nash2D <- function(data, type, var1, fix1, var2, fix2, population, sample){
   return(plot)
 }
 
-#cp<-read_csv("CupcakesTest.csv")
-
-#cpClean <- quantityCreation_duo(cp, "cupcakes", "donuts")
-
-#nash2D(cpClean, "Linear", 1, 1, 1, 1,1000, 1)

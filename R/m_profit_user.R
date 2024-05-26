@@ -83,7 +83,6 @@ profitPlot <- function(data, type, variable, fixed, population, sampleSize = NA,
   return(suppressWarnings(plot))
 }
 
-profitPlot(cpC, "Linear", 1, 1, 100, 1)
 
 profitFunctionPlot <- function(price, data, type, variable, fixed, population, sample = NA){
     this_fQ <- fQ(data, type, population, sample)
@@ -153,11 +152,6 @@ profitFunctionPlot <- function(price, data, type, variable, fixed, population, s
 
   return(suppressWarnings(newPlot))
 }
-
-#cp <- read_csv("CupcakesTest.csv")
-#cpC <- demandDurable(cp, "cupcakes")
-
-#profitFunctionPlot(1.27, cpC, "Exponential", 1, 1, 1000, 1)
 
 
 
