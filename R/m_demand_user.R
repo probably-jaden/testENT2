@@ -269,7 +269,7 @@ demandPlot <- function(price = NULL, data = NULL, type = NULL, population = NULL
       x = 0, y = this_fQ(price), xend = price, yend = this_fQ(price),
       linetype = "dashed", color = "orange", lwd = .4
     ) +
-    geom_point(x = price, y = this_fQ(price), color = "darkorange3", size = 2) +
+    geom_point(shape = 21, x = price, y = this_fQ(price), color = "darkorange3", fill = "white", size = 3) +
     theme(plot.title = element_text(face = "bold")) +
     theme_minimal() +
     theme(

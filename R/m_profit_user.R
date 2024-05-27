@@ -123,11 +123,11 @@ profitFunctionPlot <- function(price, data, type, variable, fixed, population, s
       #geom_function(data = data, fun = this_fPi, color = "green3", lwd = 1.8, alpha = .7) +
       geom_segment(data = lineDF, aes(x = price, y = profit, xend = price_next, yend = profit_next, color = netColorLine), size = 1.8, alpha = .4) +
       scale_color_identity() +
-      geom_point(aes(x = price, y = this_fPi(price)), color = annotation_color, size = 2) +
+      geom_point(aes(x = price, y = this_fPi(price)), shape = 21, color = annotation_color, size = 3) +
       geom_segment(data = data, x = price, y = yLowest, xend = price, yend = this_fPi(price), linetype = "dashed", color = annotation_color, lwd = .4) +
       geom_segment(data = data, x = 0, y = this_fPi(price), xend = price, yend = this_fPi(price), linetype = "dashed", color = annotation_color, lwd = .3) +
       geom_point(data = data, aes(x = wtp, y = profit, color = netColor), size = 2, alpha = .8)+ #color = "green4")+
-      labs(title = title, x = "Price ($'s)", y = "Profit ($'s) ") +
+      labs(x = "Price ($'s)", y = "Profit ($'s) ") +
       scale_y_continuous(
         labels = scales::label_number(scale_cut = scales::cut_short_scale()),
         breaks = scales::extended_breaks()#,
