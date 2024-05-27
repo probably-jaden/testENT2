@@ -140,15 +140,6 @@ demandPlotDuo <- function(competitor_price, price, data, type, first_or_second, 
 
 
 
-#library(scales)
-
-#cp
-#cpM <- quantityCreation_duo(cp, "cupcakes", "donuts")
-
-demandPlotDuo(.03, 3, cpM, "Exponential", 1, 1, 1)
-
-
-
 competitionRevenue <- function(price1, price2, data, type, first_or_second, population, sample = NA) {
   cols <- whichColumns(first_or_second, data)
   rev <- fRm(data, type, cols[[1]], cols[[2]], cols[[3]], population, sample)(price1, price2)
