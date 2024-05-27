@@ -114,11 +114,11 @@ demandPlotDuo <- function(competitor_price, price, data, type, first_or_second, 
     ) +
     geom_segment(
       x = price, y = 0, xend = price, yend = fQm_this(price),
-      linetype = "dashed", color = "darkorange2", lwd = .4, alpha =.5
+      linetype = "dashed", color = "orange", lwd = .2, alpha =.5
     ) +
     geom_segment(
       x = 0, y = fQm_this(price), xend = price, yend = fQm_this(price),
-      linetype = "dashed", color = "orange", lwd = .3, alpha = .5
+      linetype = "dashed", color = "orange", lwd = .2, alpha = .5
     ) +
     geom_point(x = price, y = fQm_this(price), color = "darkorange3", size = 2) +
     scale_y_continuous(
