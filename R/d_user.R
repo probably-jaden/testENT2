@@ -104,6 +104,7 @@ demandPlotDuo <- function(competitor_price, price, data, type, first_or_second, 
       color = "orange", lwd = 1, alpha = .8
     ) +
     geom_point(mapping = aes(x = x1, y = y, alpha = distCPriceN), color = "darkorange", size = 2) +
+    guides(alpha = FALSE)+
     labs(title = title, x = "Price ($'s)", y = "Quantity Sold ") +
     annotate("label",
       x = Inf, y = Inf,
@@ -243,6 +244,8 @@ profitPlot3D <- function(data, type, first_or_second, var, fix, population, samp
   return(plot3D)
 }
 
+
+
 profitPlotDuo <- function(price1, price2, data, type, first_or_second, var, fix, population, sample = NA){
   cols <- whichColumns(first_or_second, data)
   fPim_this <- function(p) fPi_m(data, type, cols[[1]], cols[[2]], cols[[3]], var, fix, population, sample)(p, price2)
@@ -256,14 +259,24 @@ profitPlotDuo <- function(price1, price2, data, type, first_or_second, var, fix,
 
   title <- paste0("Profit when Competitor's price is $", show_price)
 
+  data$wtp <- data[[cols[[1]]]]
+  data$profit <- (data[[cols[[1]]]] * (data[[cols[[3]]]] * (population / sample))) - (((data[[cols[[3]]]] * (population / sample)) * var) + fix)
+
+  data$netColor <- ifelse(data$profit > 0, "green4", "red4")
+  data$distCPrice <- sqrt((data[[cols[[2]]]] - price2)^2)
+  data$distCPriceN <- 1/(data$distCPrice + 1)
+
   newPlot <- ggplot(data = data) +
     geom_function(
       fun = fPim_this,
       color = "green3", lwd = 1.5, alpha = .8
     ) +
-    geom_point(x = price1, y = fPim_this(price1), color = "green4", size = 3) +
-    geom_segment( x = price1, y = 0, xend = price1, yend = fPim_this(price1), linetype = "dashed", color = "green4", lwd = .6) +
-    geom_segment(x = 0, y = fPim_this(price1), xend = price1, yend = fPim_this(price1), linetype = "dashed", color = "green3", lwd = .4) +
+    geom_point(aes(x = wtp, y = profit, color = netColor, alpha = distCPriceN), size = 2)+
+    guides(alpha = FALSE)+
+    scale_color_identity() +
+    geom_point(x = price1, y = fPim_this(price1), color = "darkgreen", size = 1.5) +
+    geom_segment( x = price1, y = 0, xend = price1, yend = fPim_this(price1), linetype = "dashed", color = "green3", lwd = .1) +
+    geom_segment(x = 0, y = fPim_this(price1), xend = price1, yend = fPim_this(price1), linetype = "dashed", color = "green3", lwd = .1) +
     labs(title = title, x = "Price ($'s)", y = "Profit ($'s)") +
     annotate("label",
              x = Inf, y = Inf,
