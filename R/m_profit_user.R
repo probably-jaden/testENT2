@@ -77,7 +77,6 @@ profitPlot <- function(data, type, variable, fixed, population, sampleSize = NA,
       breaks = scales::extended_breaks(),
       limits = c(0, yCap)
     ) +
-    labs(title = title) +
     theme(plot.title = element_text(face = "bold"))
 
   return(suppressWarnings(plot))
