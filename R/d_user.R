@@ -267,9 +267,9 @@ profitPlotDuo <- function(price1, price2, data, type, first_or_second, var, fix,
     geom_point(aes(x = wtp, y = profit, color = netColor, alpha = distCPriceN), size = 2)+
     guides(alpha = FALSE)+
     scale_color_identity() +
-    geom_point(shape = 21, x = price1, y = fPim_this(price1), color = "darkgreen", fill = "white", size = 3) +
     geom_segment( x = price1, y = 0, xend = price1, yend = fPim_this(price1), linetype = "dashed", color = "green3", lwd = .2) +
     geom_segment(x = 0, y = fPim_this(price1), xend = price1, yend = fPim_this(price1), linetype = "dashed", color = "green3", lwd = .2) +
+    geom_point(shape = 21, x = price1, y = fPim_this(price1), color = "darkgreen", fill = "white", size = 3) +
     labs(x = "Price ($'s)", y = "Profit ($'s)") +
     annotate("label",
              x = Inf, y = Inf,
