@@ -249,8 +249,10 @@ profitPlotDuo <- function(price1, price2, data, type, first_or_second, var, fix,
     return()
   }
 
+
+  profitPrefix <- ifelse(fPim_this(price1) < 0, "-$", "$")
   show_price <- paste0(price2)
-  show_profit <- paste0("$", conNum_short(round(fPim_this(price1), 2)))
+  show_profit <- paste0(profitPrefix, conNum_short(round(fPim_this(price1), 2)))
 
   title <- paste0("Profit when Competitor's price is $", show_price)
 
@@ -395,7 +397,7 @@ profitOptLine <- function(data, type, first_or_second, var, fix, population, sam
       opacity = 0.5, showscale = FALSE
     ) %>%
     plotly::layout(
-      title = title_str,
+      #title = title_str,
       margin = list(t = 100),
       scene = list(
         xaxis = list(title = cols[[1]]),
@@ -470,7 +472,7 @@ nash3D <- function(data, type, var1, fix1, var2, fix2, population, sample) {
       opacity = 0.2, showscale = FALSE, color = ~ surface_mat2[[1]], colorscale = "Blues"
     ) %>%
     plotly::layout(
-      title = title_str,
+      #title = title_str,
       margin = list(t = 100),
       scene = list(
         xaxis = list(title = cols1[[1]]),
@@ -516,8 +518,7 @@ nash2D <- function(data, type, var1, fix1, var2, fix2, population, sample){
     geom_line(data = lineData, aes(x = x2, y = y2, color = line2_color), size = 2.6, alpha = .3) +
     geom_point(data = coordDF, aes(x = x, y = y), color = "palevioletred3", size = 2.6, alpha = .5) +
     scale_color_identity() +
-    labs(title = "Reaction Functions & Nash Equilibrium",
-         x = paste(cols[[1]], "Price ($'s)"),
+    labs(x = paste(cols[[1]], "Price ($'s)"),
          y = paste(cols[[2]], "Price ($'s)")) +
     theme_minimal() +
     theme(plot.title = element_text(face = "bold"),
