@@ -239,6 +239,8 @@ profitPlot3D <- function(data, type, first_or_second, var, fix, population, samp
 
 
 
+
+
 profitPlotDuo <- function(price1, price2, data, type, first_or_second, var, fix, population, sample = NA){
   cols <- whichColumns(first_or_second, data)
   fPim_this <- function(p) fPi_m(data, type, cols[[1]], cols[[2]], cols[[3]], var, fix, population, sample)(p, price2)
@@ -259,29 +261,39 @@ profitPlotDuo <- function(price1, price2, data, type, first_or_second, var, fix,
   data$distCPrice <- sqrt((data[[cols[[2]]]] - price2)^2)
   data$distCPriceN <- 1/(data$distCPrice + 1)
 
-  newPlot <- ggplot(data = data) +
-    geom_function(
-      fun = fPim_this,
-      color = "green3", lwd = 1.5, alpha = .8
-    ) +
-    geom_point(aes(x = wtp, y = profit, color = netColor, alpha = distCPriceN), size = 2)+
+  lineDF <- data.frame(price = seq(min(data$wtp), max(data$wtp), length.out = 1000))
+  lineDF <- lineDF %>%
+    mutate(profit = fPim_this(price),
+           netColorLine = ifelse(profit < 0, "red", "green3"),
+           profit_next = lead(profit),    # Next y-value for segment
+           price_next = lead(price)     # Next x-value for segment
+    ) %>%
+    filter(!is.na(profit_next))
+
+  yLowest <- min(floor(fPim_this(0)), floor(min(data$profit)), floor(fPim_this(max(data$wtp))))
+  annotation_color <- ifelse(fPim_this(price1) < 0, "red4", "green4")
+
+  newPlot <- ggplot() +
+    #geom_function(data = data, fun = fPim_this, color = "green3", lwd = 1.5, alpha = .8) +
+    geom_segment(data = lineDF, aes(x = price, y = profit, xend = price_next, yend = profit_next, color = netColorLine), size = 1.8, alpha = .4) +
+    geom_point(data = data, aes(x = wtp, y = profit, color = netColor, alpha = distCPriceN), size = 2)+
     guides(alpha = FALSE)+
     scale_color_identity() +
-    geom_segment( x = price1, y = 0, xend = price1, yend = fPim_this(price1), linetype = "dashed", color = "green3", lwd = .2) +
-    geom_segment(x = 0, y = fPim_this(price1), xend = price1, yend = fPim_this(price1), linetype = "dashed", color = "green3", lwd = .2) +
-    geom_point(shape = 21, x = price1, y = fPim_this(price1), color = "darkgreen", fill = "white", size = 3) +
+    geom_segment(data = data, x = price1, y = yLowest, xend = price1, yend = fPim_this(price1), linetype = "dashed", color = annotation_color, lwd = .2) +
+    geom_segment(data = data, x = 0, y = fPim_this(price1), xend = price1, yend = fPim_this(price1), linetype = "dashed", color = annotation_color, lwd = .2) +
+    geom_point(data = data, shape = 21, x = price1, y = fPim_this(price1), color = annotation_color, fill = "white", size = 3) +
     labs(x = "Price ($'s)", y = "Profit ($'s)") +
     annotate("label",
              x = Inf, y = Inf,
              label = paste("Profit:", show_profit),
              vjust = 1, hjust = 1, size = 5,
-             color = "darkgreen", alpha = .8,
+             color = annotation_color, alpha = .8,
              fontface = "bold"
     ) +
     scale_y_continuous(
       labels = label_number(scale_cut = cut_short_scale()),
-      breaks = scales::extended_breaks(),
-      limits = c(0, NA)
+      breaks = scales::extended_breaks()#,
+      #limits = c(0, NA)
     ) +
     xlim(c(min(data[[cols[[1]]]]), max(data[[cols[[1]]]])))+
     theme(plot.title = element_text(face = "bold")) +
