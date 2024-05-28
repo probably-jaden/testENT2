@@ -72,6 +72,14 @@ demandPlot3D <- function(data, type, first_or_second, population, sample) {
 #population <- 100000
 #sample <- 1000
 
+
+rSquaredDuo <- function(data, type, first_or_second) {
+  cols <- whichColumns(first_or_second, data)
+  model_summary <- summary(anyModel_duo(data, type, cols[[1]], cols[[2]], cols[[3]]))
+  rSq <- round(model_summary$adj.r.squared, 3)
+  return(rSq)
+}
+
 demandPlotDuo <- function(competitor_price, price, data, type, first_or_second, population, sample = NA) {
   cols <- whichColumns(first_or_second, data)
   title <- paste("Demand:", type)
@@ -248,7 +256,6 @@ profitPlotDuo <- function(price1, price2, data, type, first_or_second, var, fix,
   if (class(fPim_this) == class(NA)) {
     return()
   }
-
 
   profitPrefix <- ifelse(fPim_this(price1) < 0, "-$", "$")
   show_price <- paste0(price2)
