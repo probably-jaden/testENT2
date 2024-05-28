@@ -222,6 +222,8 @@ competitionProfit <- function(price1, price2, data, type, first_or_second, varia
   cat(paste0("Profit is $", format(round(profit, 2), big.mark = ","), "\n"))
 }
 
+#competitionProfit(1, 2, cpM, "Linear", 1, .4, 10, 10000, 1)
+
 profitPlot3D <- function(data, type, first_or_second, var, fix, population, sample) {
   cols <- whichColumns(first_or_second, data)
   mat_obj <- matrix_3D("Profit", data, type, cols[[1]], cols[[2]], cols[[3]], population, sample, var, fix)
@@ -244,8 +246,6 @@ profitPlot3D <- function(data, type, first_or_second, var, fix, population, samp
     )
   return(plot3D)
 }
-
-
 
 
 
@@ -344,6 +344,17 @@ competitionSolve <- function(data, type, first_or_second, variable1, fixed1, var
   competitionCost(opt_price2, opt_price1, data, type, 2, variable2, fixed2, population, sample = NA)
   competitionProfit(opt_price2, opt_price1, data, type, 2, variable2, fixed2, population, sample = NA)
 }
+
+optimizeProfitDuo <- function(competitorPrice, data, type, first_or_second, var, fix, population, sample){
+  cols <- whichColumns(first_or_second, data)
+  conditioned_fPi_m <- function(price){
+    profitFun <- fPi_m(data, type, cols[[1]], cols[[2]], cols[[3]], var, fix, population, sample)(price, competitorPrice)
+    return(profitFun)
+  }
+  results <- optimize(conditioned_fPi_m, lower = 0, upper = max(data[[cols[[1]]]]), maximum = TRUE)
+  return(results)
+}
+
 
 
 profitLine <- function(data, type, first_or_second, var, fix, population, sample){
